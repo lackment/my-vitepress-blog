@@ -34,7 +34,6 @@
             - recursive: true
               args: [--frozen-lockfile, --strict-peer-dependencies]
             - args: [--global, gulp, prettier, typescript]
-
         # - run: npm install pnpm@7.5.0 -g
         - name: Setup Node
           uses: actions/setup-node@v3
