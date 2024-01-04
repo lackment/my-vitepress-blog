@@ -1,0 +1,13 @@
+.VPHome {
+  // 自定义首页背景图
+  &::before {
+    background-image: url(./assets/images/bg.jpeg);
+    background-size: cover;
+  }
+  // 定义遮罩样式
+  background: radial-gradient(
+    ellipse,
+    rgba(var(--bg-gradient-home), 1) 0%,
+    rgba(var(--bg-gradient-home), 0) 150%
+  );
+}

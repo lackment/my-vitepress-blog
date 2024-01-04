@@ -1,0 +1,31 @@
+{
+  "name": "vitepress-blog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "dev": "vitepress dev docs --open",
+    "build": "vitepress build docs",
+    "serve": "vitepress serve docs",
+    "documate:upload": "documate upload",
+    "deploy": "sh ./vitepress-starter/deploy.sh"
+  },
+  "dependencies": {
+    "@documate/vue": "^0.3.1",
+    "@element-plus/icons-vue": "^2.1.0",
+    "@sugarat/theme": "0.2.15",
+    "element-plus": "^2.3.8",
+    "vue": "3.3.13"
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {
+    "@documate/documate": "^0.2.1",
+    "sass": "^1.64.1",
+    "typescript": "^5.1.6",
+    "vitepress": "1.0.0-rc.35"
+  }
+}
