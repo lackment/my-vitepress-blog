@@ -1,5 +1,5 @@
 
-  name: Deploy
+  name: Deploy VitePress site to Pages
 
   on:
     # 在针对 `main` 分支的推送上运行。如果您
