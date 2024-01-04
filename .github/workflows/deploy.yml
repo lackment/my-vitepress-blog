@@ -27,7 +27,8 @@
           uses: actions/checkout@v3
           with:
             fetch-depth: 0 # 如果未启用 lastUpdated，则不需要
-        - run: npm install pnpm@7.5.0 -g
+        - uses: pnpm/action-setup@v2
+        # - run: npm install pnpm@7.5.0 -g
         - name: Setup Node
           uses: actions/setup-node@v3
           with:
