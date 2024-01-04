@@ -1,5 +1,5 @@
 ---
-description: 默认支持流程图，tabs面板
+description: computed写法
 tag:
  - vue
 top: 1
