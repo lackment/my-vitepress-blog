@@ -45,10 +45,10 @@ const blogTheme = getThemeConfig({
   // 文章默认作者
   author: 'LackMent', 
   comment: {
-    repo: 'lackment/my-blog',
-    repoId: 'R_kgDOLAnYXg',
+    repo: 'lackment/my-vitepress-blog',
+    repoId: 'R_kgDOLA1HsA',
     category: 'Announcements',
-    categoryId: 'DIC_kwDOLAnYXs4CcL1M'
+    categoryId: 'DIC_kwDOLA1HsM4CcMpW'
   },
   recommend: false,
   hotArticle:{
