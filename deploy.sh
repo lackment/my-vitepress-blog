@@ -13,6 +13,6 @@ git init
 git add -A
 git commit -m 'deploy'
 
-git push -f git@github.com:lackment/my-blog.git main:gh-pages
+git push -f git@github.com:lackment/my-vitepress-blog.git master:gh-pages
 
 cd -
