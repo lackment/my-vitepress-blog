@@ -10,7 +10,7 @@
     "build": "vitepress build docs",
     "serve": "vitepress serve docs",
     "documate:upload": "documate upload",
-    "deploy": "sh ./vitepress-starter/deploy.sh"
+    "deploy": "sh ./deploy.sh"
   },
   "dependencies": {
     "@documate/vue": "^0.3.1",
