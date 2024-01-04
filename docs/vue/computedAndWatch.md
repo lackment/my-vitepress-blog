@@ -1,5 +1,5 @@
 ---
-description: computed写法
+description: computed的写法
 tag:
  - vue
 top: 1
