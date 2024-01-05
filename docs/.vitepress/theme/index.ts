@@ -1,7 +1,5 @@
 import BlogTheme from '@sugarat/theme'
-import { h } from 'vue'
-import Documate from '@documate/vue'
-import '@documate/vue/dist/style.css'
+import Layout from './components/layout.vue'
 
 // 自定义样式重载
 import './style.scss'
@@ -10,11 +8,6 @@ import './style.scss'
 // import './user-theme.css'
 
 export default {
-  ...BlogTheme,
-  Layout: h(BlogTheme.Layout, null, {
-    'nav-bar-content-before': () => h(Documate, {
-      endpoint: 'https://hbfue1ntki.us.aircode.run/ask',
-    }),
-  }),
+  extends: BlogTheme,
+  Layout: Layout as unknown as string
 }
-

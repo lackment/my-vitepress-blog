@@ -1,16 +1,6 @@
----
-description: computed的基本原理
-tag:
- - vue
-top: 1
-comment: true
----
-
 ### computed的简述
 
-::: tip
 `computed`是一个计算属性，通过对其内部数据的加工，来得到新的数据，且内部依赖的数据发生变化时，`computed`的值也会重新计算；此外`computed`的值有缓存的功能，即当页面内第一次获取`computed`的值时会去计算得到结果，并将这个结果值缓存起来，此后如果`computed`值内部所依赖的值没有发生变化，那么此后引用`computed`的值时，不会再去计算，而是直接获取缓存的值
-:::
 
 ~~~kotlin
 // 普通写法
@@ -37,6 +27,8 @@ computed：{
 }
 ~~~
 
+
+
 ### computed的原理
 
 * 初始化计算属性时，遍历`computed`对象，给其中每一个计算属性分别生成唯一`computed watcher`，并将该watcher中的`dirty`设置为true（初始化时，计算属性并不会立即计算（vue做的优化之一），只有当获取的计算属性值才会进行对应计算）
@@ -49,6 +41,8 @@ computed：{
 * 下次获取计算属性值时，若`dirty`为`true`, 重新计算属性的值
 
 * `dirty`是控制缓存的关键，当所依赖的数据发生变化，`dirty`设置为`true`，当`computed`属性再次被获取时，就会重新计算
+
+
 
 ### computed的源码
 
@@ -444,3 +438,6 @@ handler() {
 
 * `computed`只会在其被调用的时候执行，所以在组件初始化时，执行到mount阶段，生成虚拟`DOM`时候才会取获取值，从而触发函数
 * `watch`会在数值发生改变后，立即执行回调函数，而`watch(immediate:true)`代表在数值初始化后立刻执行回调，所以其执行的顺序先于钩子函数
+
+
+

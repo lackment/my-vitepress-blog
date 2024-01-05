@@ -1,24 +1,33 @@
 import { DefaultTheme } from 'vitepress';
 export const sidebar: DefaultTheme.Sidebar = {
-  // /column/Algothm/表示对这个文件夹下的所有md文件做侧边栏配置
   '/vue/': [
      // 第一部分
     {
-      text: '栈和队列',
+      text: 'vue2和vue3',
+      collapsed: true,
       items: [
         {
-          text: '栈-深拷贝和浅拷贝',
-          link: '/vue/computedAndWatch'
+          text: 'vue的基础理解',
+          link: '/vue/vue.md'
         },
       ]
     },
     // 第二部分
     {
-      text: '字典和树',
+      text: '部分拆解',
+      collapsed: true,
       items: [
         {
-          text: '字典和集合-Set和Map',
-          link: ''
+          text: 'computed和watch',
+          link: '/vue/computedAndWatch'
+        },
+        {
+          text: 'vue的路由',
+          link: '/vue/vue-router'
+        },
+        {
+          text: 'vue的插槽',
+          link: '/vue/slot'
         },
       ]
     }

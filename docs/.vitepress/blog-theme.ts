@@ -41,7 +41,6 @@ const blogTheme = getThemeConfig({
 
   // 主题色修改
   themeColor: 'vp-default',
-
   // 文章默认作者
   author: 'LackMent', 
   comment: {
@@ -52,64 +51,9 @@ const blogTheme = getThemeConfig({
   },
   recommend: false,
   hotArticle:{
-    title: '🔥 精选文章',
-    nextText: '换一组',
-    pageSize: 1,
     empty: false // false 时无精选文章不展示此模块
   }
 
-  // 友链
-  // friend: [
-  //   {
-  //     nickname: '粥里有勺糖',
-  //     des: '你的指尖用于改变世界的力量',
-  //     avatar:
-  //       'https://img.cdn.sugarat.top/mdImg/MTY3NDk5NTE2NzAzMA==674995167030',
-  //     url: 'https://sugarat.top',
-  //   },
-  //   {
-  //     nickname: 'Vitepress',
-  //     des: 'Vite & Vue Powered Static Site Generator',
-  //     avatar:
-  //       'https://vitepress.dev/vitepress-logo-large.webp',
-  //     url: 'https://vitepress.dev/',
-  //   },
-  // ],
-
-  // 公告
-  // popover: {
-  //   title: '公告',
-  //   body: [
-  //     { type: 'text', content: '👇公众号👇---👇 微信 👇' },
-  //     {
-  //       type: 'image',
-  //       src: 'https://img.cdn.sugarat.top/mdImg/MTYxNTAxODc2NTIxMA==615018765210'
-  //     },
-  //     {
-  //       type: 'text',
-  //       content: '欢迎大家加群&私信交流'
-  //     },
-  //     {
-  //       type: 'text',
-  //       content: '文章首/文尾有群二维码',
-  //       style: 'padding-top:0'
-  //     },
-  //     {
-  //       type: 'button',
-  //       content: '作者博客',
-  //       link: 'https://sugarat.top'
-  //     },
-  //     {
-  //       type: 'button',
-  //       content: '加群交流',
-  //       props: {
-  //         type: 'success'
-  //       },
-  //       link: 'https://theme.sugarat.top/group.html',
-  //     }
-  //   ],
-  //   duration: 0
-  // },
 })
 
 export { blogTheme }

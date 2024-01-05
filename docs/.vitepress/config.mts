@@ -26,7 +26,7 @@ export default defineConfig({
     },
     editLink: {
       pattern:
-        'https://github.com/ATQQ/sugar-blog/tree/master/packages/blogpress/:path',
+        'https://github.com/lackment/my-vitepress-blog/tree/master/docs/:path',
       text: '去 GitHub 上编辑内容'
     },
     nav,

@@ -11,3 +11,17 @@
     rgba(var(--bg-gradient-home), 0) 150%
   );
 }
+
+@font-face {
+  font-family: 'WitcherHandwritingRegular';
+  src: url('./assets/fonts/WitcherHandwritingRegular.ttf');
+}
+@font-face {
+  font-family: 'MotleyForcesRegular';
+  src: url('./assets/fonts/MotleyForcesRegular.ttf');
+}
+
+:root {
+  --vp-font-family-base: 'WitcherHandwritingRegular';
+  --vp-font-family-mono: 'MotleyForcesRegular'
+}
