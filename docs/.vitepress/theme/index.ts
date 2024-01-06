@@ -1,7 +1,6 @@
 import BlogTheme from "@sugarat/theme";
 import Layout from "./components/layout.vue";
-import vitepressMusic from "music-lackment-plugin-vitepress";
-import "music-lackment-plugin-vitepress/lib/css/index.css";
+import vitepressMusic from "./components/music/index.ts";
 
 // 自定义样式重载
 import "./style.scss";
@@ -19,7 +18,7 @@ const playlist = [
 export default {
   extends: BlogTheme,
   Layout: Layout as unknown as string,
-  enhanceApp: (ctx) => {
+  enhanceApp: () => {
     vitepressMusic(playlist);
   },
 };

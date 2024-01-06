@@ -5,7 +5,7 @@ export const nav: DefaultTheme.NavItem[] = [
     items: [
       {
         text: 'vue详解',
-        link: '/vue/computedAndWatch.md' // 对应docs/vue下的idnex.md文件
+        link: '/vue/vue.md' // 对应docs/vue下的idnex.md文件
       }
     ]
   },

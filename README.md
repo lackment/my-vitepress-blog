@@ -1,7 +1,13 @@
 # my-blog
 
-Personal blog base on vitepress template
+基于vitepress实现的个人博客
 
-## 更新文档机器人对话数据库
+## 启动命令
+
+pnpm i
+
+pnpm run dev
+
+## 更新文档机器人对话数据库的指令
 
 npm run documate:upload
