@@ -1,4 +1,15 @@
-### router 路由
+---
+title: vue-router 路由
+description: 对vue-router路由的理解
+tags:
+  - vue
+readingTime: true
+author: 'LackMent'
+---
+
+#
+
+## router 路由
 
 前端页面的路由通过 hash 模式实现，每次跳转并不是切换页面，而是在同一个页面内进行跳转，也称为 spa 页面
 
@@ -34,7 +45,7 @@ let router = new VueRouter({
 
 ```
 
-### 动态路由
+## 动态路由
 
 ```kotlin
 //query传参
@@ -56,7 +67,7 @@ this.$router.push({name:"testName",params:{id:333}}) //注意，对象写法的p
 //在跳转后的页面通过this.$route.params都可以拿到一个对象，{id:333}
 ```
 
-### 路由对象和路由参数对象
+## 路由对象和路由参数对象
 
 ```kotlin
 // 路由对象
@@ -75,7 +86,7 @@ this.$router.replace();
 $route  // 可以拿到路由中的信息 this.$rote.fullPath拿到路由路径的全部，this.$rote.meta拿到路由route的信息
 ```
 
-### 路由内的各个钩子
+## 路由内的各个钩子
 
 ```kotlin
 // 全局路由守卫（写在router实例化的文件中）
@@ -129,7 +140,9 @@ beforeRouteLeave: function(to, from, next) {
 }
 ```
 
-### 路由解析的整个过程
+## 路由解析的整个过程
+
+::: info
 
 - 导航解析开始
 - 触发上一个组件的`beforeRouterLeave`方法
@@ -143,19 +156,24 @@ beforeRouteLeave: function(to, from, next) {
 - 触发全局的`afterEach`方法
 - 渲染 Dom
 - 触发将要进入组件的`beforeRouterEnter`方法中 next 方法的回调函数
+:::
 
-### 路由 history 模式和 hash 模式的特点
+## 路由 history 模式和 hash 模式的特点
 
+:::info
 `hash`模式就是 url 路径的#后面的部分，虽然在 url 路径中，但是并不会附加进 http 请求中，不会影响服务端的操作，即便修改了 hash 的内容，页面也不会重新渲染。同时可以对 hash 加上监听事件。兼容性好，但是不美观
 `history`模式的实现主要是利用 pushState 和 replaceState 方法来修改浏览器会话的历史记录栈，虽然改变 url 路径，但是页面不是重新渲染。虽然美观但是刷新页面会出现 404，需要后端配合配置
+:::
+![路由操作实现](./images/routerhandle.png)
 
-<!-- ![image-20230403151430140](image-20230403151430140.png) -->
+## router 异步引用组件的方式
 
-### router 异步引用组件的方式
+::: info
 
 - vue 异步组件
 - ES6 的 import 方法
 - webpack 的 require.ensure 方法
+:::
 
 ```javascript
 //vue异步组件

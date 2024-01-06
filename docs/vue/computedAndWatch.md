@@ -1,8 +1,19 @@
-### computed的简述
+---
+title: computed和watch
+description: 对computed和watch的理解
+tags:
+  - vue
+readingTime: true
+author: 'LackMent'
+---
+
+#
+
+## computed 的简述
 
 `computed`是一个计算属性，通过对其内部数据的加工，来得到新的数据，且内部依赖的数据发生变化时，`computed`的值也会重新计算；此外`computed`的值有缓存的功能，即当页面内第一次获取`computed`的值时会去计算得到结果，并将这个结果值缓存起来，此后如果`computed`值内部所依赖的值没有发生变化，那么此后引用`computed`的值时，不会再去计算，而是直接获取缓存的值
 
-~~~kotlin
+```kotlin
 // 普通写法
 computed：{
   // computed计算属性名
@@ -25,28 +36,27 @@ computed：{
     }
   }
 }
-~~~
+```
 
+## computed 的原理
 
+::: info
 
-### computed的原理
+- 初始化计算属性时，遍历`computed`对象，给其中每一个计算属性分别生成唯一`computed watcher`，并将该 watcher 中的`dirty`设置为 true（初始化时，计算属性并不会立即计算（vue 做的优化之一），只有当获取的计算属性值才会进行对应计算）
 
-* 初始化计算属性时，遍历`computed`对象，给其中每一个计算属性分别生成唯一`computed watcher`，并将该watcher中的`dirty`设置为true（初始化时，计算属性并不会立即计算（vue做的优化之一），只有当获取的计算属性值才会进行对应计算）
+- 将`Dep.target`设置成当前的`computed watcher`，将`computed watcher`添加到所依赖 data 值对应的`dep`中（`依赖收集的过程`）
+- 页面内第一次访问`computed`的值时， 计算`computed`对应的值，然后将`dirty`改成 false
 
-* 将`Dep.target`设置成当前的`computed watcher`，将`computed watcher`添加到所依赖data值对应的`dep`中（`依赖收集的过程`）
-* 页面内第一次访问`computed`的值时， 计算`computed`对应的值，然后将`dirty`改成false
+- 当`computed`中所依赖的数值发生变化时，调用 set 方法触发`dep`的`notify`方法，将`computed watcher`中的`dirty`设置为`true`
 
-* 当`computed`中所依赖的数值发生变化时，调用set方法触发`dep`的`notify`方法，将`computed watcher`中的`dirty`设置为`true`
+- 下次获取计算属性值时，若`dirty`为`true`, 重新计算属性的值
 
-* 下次获取计算属性值时，若`dirty`为`true`, 重新计算属性的值
+- `dirty`是控制缓存的关键，当所依赖的数据发生变化，`dirty`设置为`true`，当`computed`属性再次被获取时，就会重新计算
+:::
 
-* `dirty`是控制缓存的关键，当所依赖的数据发生变化，`dirty`设置为`true`，当`computed`属性再次被获取时，就会重新计算
+## computed 的源码解析
 
-
-
-### computed的源码
-
-~~~kotlin
+```kotlin
 // 空函数
 const noop = () => {};
 // computed初始化的Watcher传入lazy: true，就会触发Watcher中的dirty值为true
@@ -117,15 +127,15 @@ class initComputed {
   }
 }
 
-~~~
+```
 
+## watch 的简述
 
+::: info
+`watch`是监听已有数据发生变化时，执行我们传入的回调函数的方法，在这个回调函数中可以获取到监听的数据改变前和改变后的两个数值。`watch`中 3 大属性，分别是`handle`（传入的回调函数）、`immediate`（布尔值，判断是否在数据初始化时就监听数据改动）和 `deep`（布尔值，判断是否对监听的数据进行深层的观察，例如对象内的任意一层数据发生改变，执行传入的回调函数）
+:::
 
-### watch的简述
-
-`watch`是监听已有数据发生变化时，执行我们传入的回调函数的方法，在这个回调函数中可以获取到监听的数据改变前和改变后的两个数值。`watch`中3大属性，分别是`handle`（传入的回调函数）、`immediate`（布尔值，判断是否在数据初始化时就监听数据改动）和 `deep`（布尔值，判断是否对监听的数据进行深层的观察，例如对象内的任意一层数据发生改变，执行传入的回调函数）
-
-~~~kotlin
+```kotlin
 // 简单写法
 new Vue({
   el: '#root',
@@ -137,7 +147,7 @@ new Vue({
       // newName得到的值为cityName改变后的值
       // oldName得到的值为cityName改变前的值
     }
-  } 
+  }
 })
 
 
@@ -159,33 +169,33 @@ new Vue({
     　　immediate: true,
        deep:true, // 这个为true时，当cityName.name.data的值发生改变时，也会执行回调函数
     }
-  } 
+  }
 })
-~~~
+```
 
+## watch 的原理
 
+::: info
 
-### watch的原理
+- 遍历`watch`对象， 给其中每一个 watch 属性，生成对应的`user watcher`
 
-* 遍历`watch`对象， 给其中每一个watch属性，生成对应的`user watcher`
+- 调用`watcher`中的`get`方法，将`Dep.target`设置成当前的`user watcher`，并将`user watcher`添加到监听`data`值对应的 dep 中（依赖收集的过程）
 
-* 调用`watcher`中的`get`方法，将`Dep.target`设置成当前的`user watcher`，并将`user watcher`添加到监听`data`值对应的dep中（依赖收集的过程）
+- 当所监听`data`中的值发生变化时，会调用`set`方法触发`dep`的`notify`方法，执行`watcher`中定义的方法
 
-* 当所监听`data`中的值发生变化时，会调用`set`方法触发`dep`的`notify`方法，执行`watcher`中定义的方法
+- 设置成`deep：true`的情况，递归遍历所监听的对象，将`user watcher`添加到对象中每一层 key 值的 dep 对象中，这样无论当对象的中哪一层发生变化，`wacher`都能监听到。通过对象的递归遍历，实现了深度监听功能
+:::
 
-* 设置成`deep：true`的情况，递归遍历所监听的对象，将`user watcher`添加到对象中每一层key值的dep对象中，这样无论当对象的中哪一层发生变化，`wacher`都能监听到。通过对象的递归遍历，实现了深度监听功能
+## watch 和 computed 的区别
 
+::: info
 
+- `watch`是针对监听数据改变时进行的一系列操作，`computed`是对监听的值进行加工得到一个新的值
+- `watch`不会产生一个可以访问的新值（即通过`this`可以访问到的值），`computed`会得到一个新值，可以通过`this`访问到这个值，或者对这个值进行赋值
+- `watch`并不会被缓存，`computed`的值是有缓存的
+:::
 
-### watch和computed的区别
-
-* `watch`是针对监听数据改变时进行的一系列操作，`computed`是对监听的值进行加工得到一个新的值
-* `watch`不会产生一个可以访问的新值（即通过`this`可以访问到的值），`computed`会得到一个新值，可以通过`this`访问到这个值，或者对这个值进行赋值
-* `watch`并不会被缓存，`computed`的值是有缓存的
-
-
-
-### watch（immediate: true）和computed的执行顺序
+## watch（immediate: true）和 computed 的执行顺序
 
 例子：
 
@@ -201,24 +211,24 @@ new Vue({
   data() {
     return {
       count: 1,
-    }
+    };
   },
   watch: {
     count: {
       handler() {
-        console.log('watch');
+        console.log("watch");
       },
       immediate: true,
-    }
+    },
   },
   computed: {
     computedCount() {
-      console.log('computed');
+      console.log("computed");
       return this.count + 1;
-    }
+    },
   },
   created() {
-    console.log('created');
+    console.log("created");
   },
 });
 ```
@@ -258,8 +268,7 @@ function initState (vm) {
 
 按照代码先执行`initComputed(vm, opts.computed)`，然后执行`initWatch(vm, opts.watch)`，再执行`callHook(vm, 'created')`，那结果应该为`computed` --> `watch` --> `created`
 
-
-#### 关于`initComputed`
+## 关于`initComputed`
 
 ```kotlin
 const computedWatcherOptions = { lazy: true }
@@ -358,7 +367,7 @@ computedCount() {
 
 所以只有当获取`computedCount`的时候才会触发`computed`的计算，也就是在进行`vm.$mount(vm.$options.el)`阶段才会执行到`console.log('computed')`
 
-#### 关于`initWatch`
+## 关于`initWatch`
 
 ```kotlin
 function initWatch (vm: Component, watch: Object) {
@@ -434,10 +443,10 @@ handler() {
 
 最后通过`vm.$mount(vm.$options.el)`进行页面渲染的时候，会先去创建`vNode`，这时就需要获取到`computedCount`的值，进而触发其`get`函数的后续逻辑，最终执行到`console.log('computed')`
 
-#### 总结
+## 总结
 
-* `computed`只会在其被调用的时候执行，所以在组件初始化时，执行到mount阶段，生成虚拟`DOM`时候才会取获取值，从而触发函数
-* `watch`会在数值发生改变后，立即执行回调函数，而`watch(immediate:true)`代表在数值初始化后立刻执行回调，所以其执行的顺序先于钩子函数
+::: info
 
-
-
+- `computed`只会在其被调用的时候执行，所以在组件初始化时，执行到 mount 阶段，生成虚拟`DOM`时候才会取获取值，从而触发函数
+- `watch`会在数值发生改变后，立即执行回调函数，而`watch(immediate:true)`代表在数值初始化后立刻执行回调，所以其执行的顺序先于钩子函数
+:::
