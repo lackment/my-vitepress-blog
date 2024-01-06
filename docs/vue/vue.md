@@ -661,7 +661,7 @@ new __watcher(() => {
 
 - 组件的销毁操作是`先父后子`，销毁完成的顺序是`先子后父`
 
-```info
+::: info
 父子组件的渲染顺序：
 父beforCreate -> 父created -> 父beforMount -> 子beforCreate-> 子created -> 子beforMount -> 子mounted -> 父mounted
 子组件的更新：
@@ -670,7 +670,7 @@ new __watcher(() => {
 父beforUpDate -> 父updated
 父子组件的销毁:
 父beforDestory -> 子beforDestory ->子destoried -> 父destoried
-```
+:::
 
 ## 组件的各类传值方式
 

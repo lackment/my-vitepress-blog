@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@documate/documate": "^0.2.1",
+    "music-lackment-plugin-vitepress": "^0.0.21",
     "sass": "^1.64.1",
     "typescript": "^5.1.6",
     "vitepress": "1.0.0-rc.35"

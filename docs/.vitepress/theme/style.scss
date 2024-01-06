@@ -3,20 +3,16 @@
     0% {
       background-image: url(./assets/images/bg1.jpg);
     }
-    35% {
-      background-image: url(./assets/images/bg2.jpg);
-    }
-    65% {
-      background-image: url(./assets/images/bg3.jpg);
-    }
     100% {
-      background-image: url(./assets/images/bg4.png);
+      background-image: url(./assets/images/bg2.png);
     }
   }
   // 自定义首页背景图
   &::before {
+    background-image: url(./assets/images/bg1.jpg);
     background-size: cover;
-    animation: bg-slide 40s ease-in-out infinite alternate;
+    animation: bg-slide 12s ease-in-out infinite alternate;
+    transition: all;
   }
   // 定义遮罩样式
   background: radial-gradient(

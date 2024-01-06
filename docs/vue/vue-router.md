@@ -160,7 +160,7 @@ beforeRouteLeave: function(to, from, next) {
 
 ## 路由 history 模式和 hash 模式的特点
 
-:::info
+::: info
 `hash`模式就是 url 路径的#后面的部分，虽然在 url 路径中，但是并不会附加进 http 请求中，不会影响服务端的操作，即便修改了 hash 的内容，页面也不会重新渲染。同时可以对 hash 加上监听事件。兼容性好，但是不美观
 `history`模式的实现主要是利用 pushState 和 replaceState 方法来修改浏览器会话的历史记录栈，虽然改变 url 路径，但是页面不是重新渲染。虽然美观但是刷新页面会出现 404，需要后端配合配置
 :::
