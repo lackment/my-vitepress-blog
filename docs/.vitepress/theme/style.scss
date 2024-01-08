@@ -34,3 +34,32 @@
   --vp-font-family-base: "WitcherHandwritingRegular";
   --vp-font-family-mono: "MotleyForcesRegular";
 }
+
+#live2d {
+  width: 200px !important;
+  height: 200px !important;
+}
+#waifu-tips {
+  display: none !important;
+}
+#waifu-tool-hitokoto {
+  display: none !important;
+}
+#waifu-tool-asteroids {
+  display: none !important;
+}
+#waifu-tool-switch-texture {
+  display: none !important;
+}
+#waifu-tool-info {
+  display: none !important;
+}
+#waifu {
+  margin-bottom: -5px !important;
+}
+// #waifu-tool {
+//   left: 10px !important;
+// }
+#waifu {
+  left: 75vw !important;
+}

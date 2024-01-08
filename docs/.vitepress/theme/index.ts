@@ -1,6 +1,7 @@
 import BlogTheme from "@sugarat/theme";
 import Layout from "./components/layout.vue";
 import vitepressMusic from "./components/music/index.ts";
+import loadLive2d from "./components/live2d/index.ts";
 
 // 自定义样式重载
 import "./style.scss";
@@ -19,6 +20,7 @@ export default {
   extends: BlogTheme,
   Layout: Layout as unknown as string,
   enhanceApp: () => {
+    loadLive2d();
     vitepressMusic(playlist);
   },
 };
