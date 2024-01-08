@@ -32,7 +32,7 @@ export default defineConfig({
     nav,
     outline: {
       level: [2, 6],
-      label: '目录',
+      label: 'Menu',
     },
     sidebar,
     socialLinks: [
