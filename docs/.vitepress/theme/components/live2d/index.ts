@@ -1,4 +1,5 @@
 const loadLive2d = () => {
+  if (typeof window === 'undefined') return
   localStorage.setItem('modelId', '2')
   const live2D = document.createElement('script')
   live2D.src =
