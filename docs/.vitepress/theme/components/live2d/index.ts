@@ -1,5 +1,6 @@
 const loadLive2d = () => {
   if (typeof window === 'undefined') return
+  localStorage.setItem('waifu-display', '1704729258268')
   localStorage.setItem('modelId', '2')
   const live2D = document.createElement('script')
   live2D.src =
