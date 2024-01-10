@@ -22,12 +22,14 @@ export default {
   extends: BlogTheme,
   Layout: Layout as unknown as string,
   enhanceApp: ({ app }) => {
-    app.use(Particles, {
-      init: async (engine) => {
-        await loadFull(engine)
-      },
-    })
     loadLive2d()
     vitepressMusic(playlist)
+    if (typeof window !== 'undefined'){
+      app.use(Particles, {
+        init: async (engine) => {
+          await loadFull(engine)
+        },
+      })
+    }
   },
 }
