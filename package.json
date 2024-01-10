@@ -24,7 +24,9 @@
   },
   "devDependencies": {
     "@documate/documate": "^0.2.1",
+    "@tsparticles/vue3": "^3.0.0",
     "sass": "^1.64.1",
+    "tsparticles": "^3.0.3",
     "typescript": "^5.1.6",
     "vitepress": "1.0.0-rc.35"
   }

@@ -100,12 +100,12 @@ axios.intercpotors.response.use( res => {
   include=""
   exclude=""
   max="2"
->
-  //
-  确定哪些组件要被保留状态，哪些不用，里面填入的name，即在每个组件中script中定义name
-  // include表明哪些组件的状态需要保留 // exclude表明哪些组件的状态不需要保留 //
-  max表明最多可以保存多少个组件的状态 // 可以放<component></component> 或者 <router-view></router-view>
-</keep-alive>
+></keep-alive>
+// 确定哪些组件要被保留状态，哪些不用，里面填入的name，即在每个组件中script中定义name
+// include表明哪些组件的状态需要保留
+// exclude表明哪些组件的状态不需要保留
+// max表明最多可以保存多少个组件的状态
+// 可以放<component></component> 或者 <router-view></router-view>
 ```
 
 ## component 组件
@@ -178,31 +178,46 @@ let Son = new Vue({
 
 ## render 渲染
 
-```vue
-@import componentOne from ''
+```javascript
+import componentOne from ''
 <div id="app"></div>
-// 用componentOne组件替换原来的app let app = new Vue({ el:'#app' render(el){
-return el(componentOne)} })
+// 用componentOne组件替换原来的
+app let app = new Vue({ el:'#app', render(el){return el(componentOne)} })
 ```
 
 ## filter 过滤器
 
-```vue
-Vue.filter('过滤器名'，function(data){ // data参数为固定值，为要进行过滤的数据
-}) // 调用方式（只能在v-bind和{{}}中调用）
+```javascript
+Vue.filter('过滤器名'，function(data){
+  // data参数为固定值，为要进行过滤的数据
+  })
+
+// 调用方式（只能在v-bind和{{}}中调用）
 {{ data | 过滤器名 }}
 ```
 
 ## directive 指令
 
-```vue
-Vue.directive('命令名',{ inserted(el){ //绑定此命令的元素插入进Dom中时执行 //
-el为绑定此命令的dom元素 } bind（el）{ //当此命令绑定到元素上时执行 }
-updated（el）{ //此元素发生改变后执行 } }) // 调用
+```javascript
+Vue.directive('命令名',
+{
+  inserted(el){
+    //绑定此命令的元素插入进Dom中时执行
+    //el为绑定此命令的dom元素
+    },
+   bind（el）{ //当此命令绑定到元素上时执行
+    }
+   updated（el）{ //此元素发生改变后执行
+   }
+  })
+// 调用
 <div v-命令名></div>
 
-// 快捷写法 Vue.directive('命令名',function(el,bing){ //
-此方法代表bind和updated方法 // bing.value可得到 v-命令名 = ‘’中等号后面的值 })
+// 快捷写法
+Vue.directive('命令名', function(el,bing){
+  //此方法代表bind和updated方法
+  // bing.value可得到 v-命令名 = ‘’中等号后面的值
+  })
 ```
 
 ## vueX 状态管理
@@ -397,7 +412,7 @@ export default {
 
 ## $event 事件对象
 
-```vue
+```javascript
 // $event的使用
 // 原生事件中代表事件对象
 <div @click = "test">
@@ -664,13 +679,13 @@ new __watcher(() => {
 
 ::: info
 父子组件的渲染顺序：
-父beforCreate -> 父created -> 父beforMount -> 子beforCreate-> 子created -> 子beforMount -> 子mounted -> 父mounted
+父 beforCreate -> 父 created -> 父 beforMount -> 子 beforCreate-> 子 created -> 子 beforMount -> 子 mounted -> 父 mounted
 子组件的更新：
-父beforUpDate -> 子beforUpdate ->子updated -> 父updated
+父 beforUpDate -> 子 beforUpdate ->子 updated -> 父 updated
 父组件更新：
-父beforUpDate -> 父updated
+父 beforUpDate -> 父 updated
 父子组件的销毁:
-父beforDestory -> 子beforDestory ->子destoried -> 父destoried
+父 beforDestory -> 子 beforDestory ->子 destoried -> 父 destoried
 :::
 
 ## 组件的各类传值方式
@@ -791,21 +806,29 @@ this.$parnet //得到父组件的vue实例对象即this
 
 ## vue 组件的继承
 
-```vue
+```javascript
+
 // 方法一 父组件
 <template>
   <div>haha</div>
 </template>
-export default { methods:{ test(){ } } } // 子组件：
+export default { methods:{ test(){ } } }
+
+// 子组件：
 <template></template>
-import fatherComponent from ''; export default{ extends:fatherComponent //
-会继承父组件中的methods、data和template中的内容，但是如果子组件中有对应的方法和变量名的话，父组件的会被替换，且如果子组件的template中有内容的话就会替换继承来的父组件中的template中的内容
-} // 方法二 父组件：
+import fatherComponent from '';
+export default{
+  extends:fatherComponent // 会继承父组件中的methods、data和template中的内容，但是如果子组件中有对应的方法和变量名的话，父组件的会被替换，且如果子组件的template中有内容的话就会替换继承来的父组件中的template中的内容
+}
+
+// 方法二 父组件：
 <template>
   <div>haha</div>
 </template>
-export default { methods:{ test(){ } } } //子组件: import fatherComponent from
-'', export default { mixins:[fatherComponent], //使用混入继承 }
+export default { methods:{ test(){ } } }
+//子组件:
+import fatherComponent from'',
+export default { mixins:[fatherComponent] } //使用混入继承
 ```
 
 ## .sync 修饰词和 v-model 的用法
