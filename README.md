@@ -10,4 +10,4 @@ pnpm run dev
 
 ## 更新文档机器人对话数据库的指令
 
-npm run documate:upload
+pnpm run documate:upload

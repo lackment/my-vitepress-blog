@@ -174,14 +174,10 @@ const particles = {
 <template>
   <BlogTheme.Layout>
     <template v-slot:nav-bar-content-before>
-      <ClientOnly>
-        <Documate endpoint="https://hbfue1ntki.us.aircode.run/ask"></Documate>
-      </ClientOnly>
+      <Documate endpoint="https://hbfue1ntki.us.aircode.run/ask"></Documate>
     </template>
     <template v-slot:home-hero-before>
-      <ClientOnly>
-        <vue-particles id="tsparticles" :options="particles" />
-      </ClientOnly>
+      <vue-particles id="tsparticles" :options="particles" />
     </template>
   </BlogTheme.Layout>
 </template>

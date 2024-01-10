@@ -10,6 +10,10 @@ export const sidebar: DefaultTheme.Sidebar = {
           text: 'vue的基础理解',
           link: '/vue/vue.md'
         },
+        {
+          text: 'vue3的变动',
+          link: '/vue/vue3Change.md'
+        },
       ]
     },
     // 第二部分
@@ -28,6 +32,10 @@ export const sidebar: DefaultTheme.Sidebar = {
         {
           text: 'vue的插槽',
           link: '/vue/slot'
+        },
+        {
+          text: 'vue的全局状态',
+          link: '/vue/vueData'
         },
       ]
     }
