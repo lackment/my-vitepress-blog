@@ -169,7 +169,6 @@ const particles = {
   },
   retina_detect: true,
 }
-
 </script>
 
 <template>
@@ -177,12 +176,14 @@ const particles = {
     <template v-slot:nav-bar-content-before>
       <Documate endpoint="https://hbfue1ntki.us.aircode.run/ask"></Documate>
     </template>
-    <template v-slot:home-hero-before>
-      <vue-particles
-        id="tsparticles"
-        :options="particles"
-      />
-    </template>
+    <ClientOnly>
+      <template v-slot:home-hero-before>
+        <vue-particles
+          id="tsparticles"
+          :options="particles"
+        />
+      </template>
+    </ClientOnly>
   </BlogTheme.Layout>
 </template>
 
