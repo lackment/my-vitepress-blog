@@ -24,12 +24,12 @@ export default {
   enhanceApp: ({ app }) => {
     loadLive2d()
     vitepressMusic(playlist)
-    if (typeof window !== 'undefined'){
-      app.use(Particles, {
-        init: async (engine) => {
-          await loadFull(engine)
-        },
-      })
-    }
+    // if (typeof window !== 'undefined'){
+    //   app.use(Particles, {
+    //     init: async (engine) => {
+    //       await loadFull(engine)
+    //     },
+    //   })
+    // }
   },
 }
