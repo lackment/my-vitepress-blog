@@ -9,7 +9,7 @@ import { loadFull } from 'tsparticles'
 import './style.scss'
 
 // 自定义主题色
-// import './user-theme.css'
+import './user-theme.css'
 
 const playlist = [
   {
