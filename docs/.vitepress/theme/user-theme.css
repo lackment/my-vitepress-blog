@@ -3,23 +3,27 @@
 
 /* 浅色模式使用的变量 */
 html[theme] {
-  --vp-c-user-1:#212529;
-  --vp-c-user-2:#495057;
-  --vp-c-user-soft:rgba(218, 222, 226,.5);
-  --dm-color-brand:#212529
+  --vp-c-user-1: #212529;
+  --vp-c-user-2: #495057;
+  --vp-c-user-soft: rgba(218, 222, 226, 0.5);
+  --vp-c-user--tip-soft: rgba(135, 183, 247, 0.6);
+  --dm-color-brand: #212529;
 }
 
 /* 深色模式使用的变量 */
 html[theme].dark {
-  --vp-c-user-1:#e9ecef;
-  --vp-c-user-2:#dee2e6;
-  --vp-c-user-soft:rgba(59, 63, 67,.5);
-  --dm-color-brand:#e9ecef
+  --vp-c-user-1: #e9ecef;
+  --vp-c-user-2: #dee2e6;
+  --vp-c-user-soft: rgba(59, 63, 67, 0.5);
+  --vp-c-user--tip-soft: rgba(135, 183, 247, 0.6);
+  --dm-color-brand: #e9ecef;
 }
 
 /* 覆盖默认变量 */
-html[theme],html[theme].dark {
+html[theme],
+html[theme].dark {
   --vp-c-brand-1: var(--vp-c-user-1);
   --vp-c-brand-2: var(--vp-c-user-2);
   --vp-c-brand-soft: var(--vp-c-user-soft);
+  --vp-custom-block-tip-bg: var(--vp-c-user--tip-soft);
 }

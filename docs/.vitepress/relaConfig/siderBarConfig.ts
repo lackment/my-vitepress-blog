@@ -11,7 +11,7 @@ export const sidebar: DefaultTheme.Sidebar = {
           link: '/vue/vue.md'
         },
         {
-          text: 'vue3的变动',
+          text: 'vue3的解析',
           link: '/vue/vue3Change.md'
         },
       ]

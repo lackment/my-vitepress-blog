@@ -102,152 +102,6 @@ export default {
 
 ![生命周期钩子函数](./images/hook.png)
 
-## 响应式
-
-```javascript
-import { computed, watch, watchEffect, ref, reactive, readonly } from 'vue'
-export default {
-  setup(props, content) {
-    //使自定义数据具有响应的特性
-    let a = ref(9) //返回给a的是一个js对象，其中的value属性的值等于传进去的9
-    a.value //等于9
-
-    let c = ref({
-      a,
-    })
-
-    c.value.a //等于9,如果ref定义的数据存在于响应性对象中，那么调用的时候，只需要通过.名字即可获取到，不需要再.value来获取数据
-
-    //reactive另外一种使自定义数据具有响应特性的方法，本质上是使用了Obeservavle方法
-    let e = reactive({
-      a: 'a',
-    })
-    let u = reactive([0]) //这个使数据具有响应的方法只适用于对象和数组，且只对其内部元素有效果
-
-    let only = readonly(a)
-    let onlyTwo = readonly(
-      reactive({
-        a: '2',
-      })
-    )
-    //加上了readonly，就无法改变a.value的值
-
-    //统一来说ref和reactive两者都是对其内部元素进行响应的，ref相对于value属性的值，reactive对于其内部元素
-
-    let computedRef = ref('5')
-    //计算属性的改变
-    //接收一个函数，当函数内部响应的值发生变化后，会重新再执行一次，返回一个不能改变的ref对象
-    let computedData = computed(() => computedRef.value + 1)
-    //如果要返回的ref对象能够改变，则需要以下的写法
-    let computedDataOne = computed({
-      set: (val) => (computedRef.value = val),
-      get() {
-        return computedRef.value + 1
-      },
-    })
-    //computed的第二个参数是个对象,对象中有onTrack和onTrigger方法
-    let computedDataOne = computed(
-      {
-        set: (val) => (computedRef.value = val),
-        get() {
-          return computedRef.value + 1
-        },
-      },
-      {
-        onTrack(callBack) {
-          //接受一个回调函数,在获取监听值时触发
-          //computedDataOne.value 这时候触发
-        },
-        onTrigger(callBack) {
-          //接受一个回调函数,在监听的值发生改变时触发
-          //computedDataOne.value = 2 这时候触发
-        },
-      }
-    )
-
-    //侦听器,所有的侦听器的刷新时间都在updated之前
-    let watchData = ref('4')
-    let watchDataTwo = reactive({
-      a: '2',
-    })
-    const stop = watchEffect(
-      (cannelCallBack) => {
-        //在setup或者生命周期中，当setup或者生命周期钩子被调用了，这个侦听器就会被调用
-        console.log(watchData)
-        console.log(watchDataTwo)
-        //当内部用到的响应式的值发生了变化则这个函数重新执行
-        watchData.value += 1
-
-        //接收一个失效的回调函数，这个函数会在watchEffect监听的数据发生改变时、组件被卸载时以及该监听被停止时触发
-        //注意这个回调函数不是由使用者传入进去的
-        //可用于取消请求
-        cannelCallBack(() => {
-          //回调的内容
-        })
-      },
-      {
-        //只在开发环境下有用
-        onTrack(callBack) {
-          //接受一个回调函数,在获取监听值时触发
-        },
-        onTrigger(callBack) {
-          //接受一个回调函数,在监听的值发生改变时触发
-        },
-      }
-    )
-    //watchEffect方法返回一个清除方法,可以清除这个watchEffect监听
-    stop()
-
-    //watch监听单个ref数据,如果监听的是ref或者reactive包裹的数组或者对象，想要数组内部或者对象内部值发生改变时触发，         那么就要加上deep:true
-    const stop = watch(
-      watchData,
-      (newVal, oldVal, callBack) => {
-        //接收一个失效的回调函数，这个函数会在watch监听的数据发生改变时、组件被卸载时以及该监听被停止时触发
-        //注意这个回调函数不是由使用者传入进去的
-        //可用于取消请求
-        cannelCallBack(() => {
-          //回调的内容
-        })
-      },
-      { deep: true }
-    )
-    //与watchEffect相同返回一个可取消该监听的函数
-    stop()
-
-    //watch监听单个reactive数据
-    watch(watchDataTwo.a, (newVal, oldVal) => {})
-
-    //watch监听多个数据,如果监听的多个数据在同一个方法内部改变，那么只会被触发一次，如果要多次触发，那么需要使用                nextTick()来隔开多次值的改变,例如以下
-    //this.watchData ='22' await nextTick(); this.watchDataTwo.a ='66'
-    watch(
-      [watchData, watchDataTwo.a],
-      (
-        [newWatchData, newWatchDataTwo],
-        [oldWatchData, oldnewWatchDataTwo]
-      ) => {}
-    )
-    //watch监听类似computed的数据
-    watch(
-      () => watchData.value + 1,
-      (newVal, oldVal) => {}
-    )
-
-    return {
-      a,
-      e,
-      u,
-    }
-  },
-  methods: {
-    change() {
-      this.e = '888' //这样不能改变模板中e的值，即没有响应的特性
-      this.e.a = '666' //这样才能改变
-      this.a //在vue的组件和template中引用ref的数据直接引用名字即可，不需要在通过.value来获取
-    },
-  },
-}
-```
-
 ## vue3 中 setup 语法糖
 
 单文件组合式 Api 的语法糖
@@ -289,7 +143,7 @@ export default {
 
 //渲染结果
   <foo :msg='msg' @test='test'></foo>
-   <tool> </tool>
+  <tool> </tool>
 
 //实际上输出
 import {h} from 'vue';
@@ -361,6 +215,321 @@ onMounted(() => {
     aRef.value.test()
 })
 </script>
+```
+
+## reactive
+
+用于创建一个响应性对象或者数组，一般不使用 reactive 创建基础类型数据，使用 proxy 来对数据进行代理操作
+
+```javascript
+<script setup>
+import { reactive } from 'vue'
+let msg = reactive({ a: '212' })
+msg.a = '555'
+
+// 重新赋值会使reactive的数据失去响应性
+setTimeout(() => {
+  msg = reactive({
+    a: '444'
+  })
+  // msg不会发生改变
+}, 3000)
+
+// 解构或者将其内部的某个数据作为参数传入 也会使其失去响应性
+let { a } = msg
+a = '4444'
+
+const foo = (data) => {
+  data = 4
+}
+foo(msg.a)
+// 以上情况msg中的a都不会发生改变
+</script>
+
+<template>
+  <h1>{{ msg }}</h1>
+</template>
+```
+
+## ref
+
+用于创建一个有响应性的数据
+
+```javascript
+<script setup>
+import { ref } from 'vue'
+
+const count = ref(0)
+
+function increment() {
+  count.value++
+}
+
+// 这种情况ref会失去响应性
+let msg = ref('333')
+const foo = (data) => {
+  data = 4
+}
+setTimeout(() => {
+ foo(msg.value)
+}, 3000)
+</script>
+
+<template>
+  <button @click="increment">
+    {{ count }}
+  </button>
+</template>
+```
+
+本质上 ref 是 reactive 的高阶函数，可以简单的看作是一个有 value 属性值的 reactvie 对象
+
+```javascript
+// 大致的实现逻辑
+function ref(value) {
+  // 创建一个内含.value属性的响应式对象
+  const refObject = {
+    get value() {
+      track(refObject, 'get', 'value')
+      return value
+    },
+    set value(newValue) {
+      if (newValue !== value) {
+        value = newValue
+        trigger(refObject, 'set', 'value')
+      }
+    },
+  }
+
+  return reactive(refObject)
+}
+
+function reactive(target) {
+  // 用Proxy实现基本的响应式
+  return new Proxy(target, {
+    get(target, prop) {
+      // 收集依赖...
+      return Reflect.get(target, prop)
+    },
+    set(target, prop, value) {
+      // 触发更新...
+      return Reflect.set(target, prop, value)
+    },
+  })
+}
+
+function track() {
+  // 依赖收集相关逻辑
+}
+
+function trigger() {
+  // 触发更新相关逻辑
+}
+```
+
+## computed 计算属性
+
+一个只读的计算属性
+
+```javascript
+const count = ref(1)
+const plusOne = computed(() => count.value + 1)
+// computed返回的是ref包裹后的对象，所以在使用的时候需要用.value访问
+
+console.log(plusOne.value) // 2
+
+plusOne.value++ // 错误
+```
+
+一个可写的计算属性
+
+```javascript
+const count = ref(1)
+const plusOne = computed({
+  get: () => count.value + 1,
+  set: (val) => {
+    count.value = val - 1
+  },
+})
+
+plusOne.value = 1
+console.log(count.value) // 0
+```
+
+计算属性的调试
+
+```javascript
+const plusOne = computed(() => count.value + 1, {
+  onTrack(e) {
+    // 当 count.value 被追踪为依赖时触发
+    debugger
+  },
+  onTrigger(e) {
+    // 当 count.value 被更改时触发
+    debugger
+  },
+})
+
+// 访问 plusOne，会触发 onTrack
+console.log(plusOne.value)
+
+// 更改 count.value，应该会触发 onTrigger
+count.value++
+```
+
+::: tip
+3.4 版本后，computed 只会在新旧两个值不一样时才会只会执行后续的操作
+:::
+
+## readonly
+
+是某些数据只读
+
+```javascript
+const original = reactive({ count: 0 })
+
+const copy = readonly(original)
+
+watchEffect(() => {
+  // 用来做响应性追踪
+  console.log(copy.count)
+})
+
+// 更改源属性会触发其依赖的侦听器
+original.count++
+
+// 更改该只读副本将会失败，并会得到一个警告
+copy.count++ // warning!
+```
+
+## 侦听器
+
+监听某些数据的改变，然后执行对应的操作
+
+### watch 监听器
+
+监听不同来源的数据
+
+```javascript
+const x = ref(0)
+const y = ref(0)
+
+// 单个 ref
+watch(x, (newX) => {
+  console.log(`x is ${newX}`)
+})
+
+// getter 函数
+watch(
+  () => x.value + y.value,
+  (sum) => {
+    console.log(`sum of x + y is: ${sum}`)
+  }
+)
+
+// 多个来源组成的数组
+watch([x, () => y.value], ([newX, newY]) => {
+  console.log(`x is ${newX} and y is ${newY}`)
+})
+```
+
+不能直接去侦听响应性对象的属性值，而是应该改成计算属性来侦听
+
+```javascript
+const obj = reactive({ count: 0 })
+
+// 错误，因为 watch() 得到的参数是一个 number
+watch(obj.count, (count) => {
+  console.log(`count is: ${count}`)
+})
+
+// 提供一个 getter 函数
+watch(
+  () => obj.count,
+  (count) => {
+    console.log(`count is: ${count}`)
+  }
+)
+```
+
+深层的侦听对象 即时回调侦听和一次性侦听
+
+```javascript
+watch(
+  () => state.someObject,
+  (newValue, oldValue) => {
+    // 注意：`newValue` 此处和 `oldValue` 是相等的
+    // *除非* state.someObject 被整个替换了
+  },
+  { deep: true }
+)
+watch(
+  source,
+  (newValue, oldValue) => {
+    // 立即执行，且当 `source` 改变时再次执行
+  },
+  { immediate: true }
+)
+
+// 3.4版本可用，当数据变化后，只触发一次
+watch(
+  source,
+  (newValue, oldValue) => {
+    // 当 `source` 变化时，仅触发一次
+  },
+  { once: true }
+)
+```
+
+### watchEffect 侦听器
+
+自动根据回调函数内部的中的响应性数据来执行回调，无需明确的指明哪些数据发生改变后，执行回调函数
+
+```javascript
+const todoId = ref(1)
+const data = ref(null)
+
+watch(
+  todoId,
+  async () => {
+    const response = await fetch(
+      `https://jsonplaceholder.typicode.com/todos/${todoId.value}`
+    )
+    data.value = await response.json()
+  },
+  { immediate: true }
+)
+// 上面的可以改写为watchEffect 代码更简洁
+watchEffect(async () => {
+  const response = await fetch(
+    `https://jsonplaceholder.typicode.com/todos/${todoId.value}`
+  )
+  data.value = await response.json()
+})
+```
+
+### watchPostEffect 侦听器
+
+在 vue 更新后执行回调函数
+
+```javascript
+import { watchPostEffect } from 'vue'
+
+watchPostEffect(() => {
+  /* 在 Vue 更新后执行 */
+})
+```
+
+### watchSyncEffect 侦听器
+
+在响应式数据变化时同步执行
+
+```javascript
+import { watchSyncEffect } from 'vue'
+
+watchSyncEffect(() => {
+  /* 在响应式数据变化时同步执行 */
+})
 ```
 
 ## vue3 中的 provide 和 inject
