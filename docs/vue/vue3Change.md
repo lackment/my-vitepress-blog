@@ -4,7 +4,6 @@ description: 对vue3的代码解析
 tags:
   - vue
 readingTime: true
-author: 'LackMent'
 top: 2
 ---
 
@@ -102,7 +101,7 @@ export default {
 
 ![生命周期钩子函数](./images/hook.png)
 
-## vue3 中 setup 语法糖
+## setup 语法糖
 
 单文件组合式 Api 的语法糖
 
@@ -162,8 +161,25 @@ export default {
     }
 }
 
+```
 
-// 常用的hook函数，
+### 命名空间组件
+
+```javascript
+<script setup>
+import * as Form from './form-components'
+</script>
+
+<template>
+  <Form.Input>
+    <Form.Label>label</Form.Label>
+  </Form.Input>
+</template>
+```
+
+### 常用的 hook 函数
+
+```javascript
 <script setup>
 import { useSlots, useAttrs,defineProps,defineEmits} from 'vue'
 import { useRoute, useRouter } from 'vue-router/composables';
@@ -171,12 +187,30 @@ import { useRoute, useRouter } from 'vue-router/composables';
 
   // 获取solts插槽对象
   const slots = useSlots()
+  // 如果是在template模版中使用可以直接写$slots
+
+  // 3.3版本也可以这样获取solt对象
+  const slots = defineSlots<{
+      default(props: { msg: string }): any
+      }>()
+
   // 获取当前组件上的属性
   const attrs = useAttrs()
+  // 如果是在template模版中使用可以直接写$attrs
+
   // 获取父组件传递进来的参数
-  const props = defineProps()
+  const props = defineProps({test:string})
+
   // 获取父组件传递进来的方法
-  const emits = defineEmits()
+  const emits = defineEmits(['change', 'delete'])
+  // 使用ts时
+  const emits = defineEmits<{
+       (e: 'change', id: number): void
+       (e: 'update', value: string): void
+       }>()
+  // 使用
+  emits('change',value)
+
   // 获取路由对象
   const router = useRouter()
   // 获取路由参数对象
@@ -217,9 +251,219 @@ onMounted(() => {
 </script>
 ```
 
+## v-model
+
+### 基础使用方式
+
+```javascript
+<script setup>
+
+// 定义 props，modelValue 是 v-model 默认使用的 prop
+const props = defineProps({
+  modelValue: String // 或者另一个适当的类型
+})
+
+// 定义 emits，包括 v-model 更新的事件
+const emit = defineEmits(['update:modelValue'])
+</script>
+```
+
+### 自定义多变量名方式
+
+```javascript
+//父组件
+<template>
+  <!-- 不在使用.sync修饰符，而是采用v-model：变量名的方式来替代 -->
+ <children v-model:testA="testA"  v-model:testB="testB"></children>
+</template>
+<script setup>
+ const testA = 'a';
+ const testB = 'b'
+</script>
+
+//子组件
+template>
+    <div>{{ testA }}</div>
+    <div>{{ testB }}</div>
+</template>
+<script setup>
+
+const props = defineProps({
+  testA: String // 或者另一个适当的类型
+  testB: String // 或者另一个适当的类型
+})
+const emit = defineEmits(['update:testA','update:testB'])
+</script>
+```
+
+### 修饰符
+
+::: info
+`v-model`自带有一些修饰符，这些修饰符可以帮助我们快速的处理数据。
+
+- `v-model.trim`:将绑定的值的首尾空格全部自动去掉。
+- `v-model.lazy`：在值发生改变的时候，让改变的事件延迟执行，例如 input 标签的 change 事件，值发生改变时只会在按下回车键或者失去了焦点后触发。
+- `v-modde.number`：将绑定的值转变为数字，前提是绑定的值能被 parseFloat()方法解析。
+  :::
+
+### v-model 的自定义修饰符
+
+```javascript
+// 不带变量的v-model的方式
+// 父组件
+<template>
+ <MyComponent v-model.capitalize="myText" />
+</template>
+
+// 子组件
+<script setup>
+const props = defineProps({
+  modelValue: String,
+  modelModifiers: { default: () => ({}) }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+function emitValue(e) {
+  let value = e.target.value
+  if (props.modelModifiers.capitalize) {
+    value = value.charAt(0).toUpperCase() + value.slice(1)
+  }
+  emit('update:modelValue', value)
+}
+</script>
+
+<template>
+  <input type="text" :value="modelValue" @input="emitValue" />
+</template>
+
+
+// 带变量的v-model的方式
+// 父组件
+<UserName
+  v-model:first-name.capitalize="first"
+  v-model:last-name.uppercase="last"
+/>
+
+// 子组件
+<script setup>
+const props = defineProps({
+firstName: String,
+lastName: String,
+firstNameModifiers: { default: () => ({}) },
+lastNameModifiers: { default: () => ({}) }
+})
+defineEmits(['update:firstName', 'update:lastName'])
+
+console.log(props.firstNameModifiers) // { capitalize: true }
+console.log(props.lastNameModifiers) // { uppercase: true}
+</script>
+```
+
+### defineModel
+
+3.4 版本以后可以使用，v-model 的语法糖
+
+```javascript
+// 父组件
+<Child v-model="count" />
+
+// 子组件
+<script setup>
+// 返回的是一个ref对象
+const model = defineModel({type:number,required: true,default:0})
+
+function update() {
+  model.value++
+}
+</script>
+
+<template>
+  <input v-model="model" />
+</template>
+
+
+// 有参数的时候
+// 父组件
+<MyComponent v-model:title="bookTitle" />
+
+// 子组件
+<script setup>
+const title = defineModel('title')
+// 或者写成
+const title = defineModel('title', { required: true })
+</script>
+
+<template>
+  <input type="text" v-model="title" />
+</template>
+
+// 多个参数的时候
+// 父组件
+<UserName
+  v-model:first-name="first"
+  v-model:last-name="last"
+/>
+
+// 子组件
+<script setup>
+const firstName = defineModel('firstName')
+const lastName = defineModel('lastName')
+</script>
+
+<template>
+  <input type="text" v-model="firstName" />
+  <input type="text" v-model="lastName" />
+</template>
+
+
+// 处理自定义修饰符
+// 父组件
+<MyComponent v-model.capitalize="myText" />
+
+// 子组件
+<script setup>
+const [model, modifiers] = defineModel({
+  set(value) {
+    // 改变model时触发
+    if (modifiers.capitalize) {
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    }
+    return value
+  },
+  get(value){
+    // 获取model时触发
+    return value
+
+  }
+})
+</script>
+
+<template>
+  <input type="text" v-model="model" />
+</template>
+
+// 多参数的修饰符操作
+// 父组件
+<UserName
+  v-model:first-name.capitalize="first"
+  v-model:last-name.uppercase="last"
+/>
+
+// 子组件
+<script setup>
+const [firstName, firstNameModifiers] = defineModel('firstName')
+const [lastName, lastNameModifiers] = defineModel('lastName')
+
+console.log(firstNameModifiers) // { capitalize: true }
+console.log(lastNameModifiers) // { uppercase: true}
+</script>
+
+```
+
 ## reactive
 
-用于创建一个响应性对象或者数组，一般不使用 reactive 创建基础类型数据，使用 proxy 来对数据进行代理操作
+用于创建一个响应性对象或者数组，不能使用 reactive 创建基础类型数据，因为 reactive 使用 proxy 来对数据进行代理操作，proxy 无法操作基本类型的值
 
 ```javascript
 <script setup>
@@ -406,7 +650,7 @@ copy.count++ // warning!
 
 监听某些数据的改变，然后执行对应的操作
 
-### watch 监听器
+### watch 侦听器
 
 监听不同来源的数据
 
@@ -452,7 +696,7 @@ watch(
 )
 ```
 
-深层的侦听对象 即时回调侦听和一次性侦听
+深层的侦听对象 即时回调侦听 一次性侦听 侦听回调执行的时机和调式
 
 ```javascript
 watch(
@@ -479,6 +723,17 @@ watch(
   },
   { once: true }
 )
+
+// 侦听回调执行的时机和调式
+watch(source, callback, {
+  flush: 'post', // 两个值 post代表在dom更新后执行回调函数，sync代表在数据改变的同时触发回调函数
+  onTrack(e) {
+    debugger
+  },
+  onTrigger(e) {
+    debugger
+  },
+})
 ```
 
 ### watchEffect 侦听器
@@ -532,7 +787,112 @@ watchSyncEffect(() => {
 })
 ```
 
-## vue3 中的 provide 和 inject
+### 停止侦听
+
+```javascript
+// 上述的所有侦听器都能这么停止
+const stop = watchEffect(() => {})
+
+// 当不再需要此侦听器时:
+stop()
+```
+
+## 判断响应类型的方法
+
+可以得到各个响应数据的类型
+
+```javascript
+let foo: unknown
+if (isRef(foo)) {
+  // foo 的类型被收窄为了 Ref<unknown>
+  foo.value
+}
+
+// isProxy() 检查一个对象是否是由 reactive()、readonly()、shallowReactive() 或 shallowReadonly() 创建的代理
+function isProxy(value: unknown): boolean
+
+// isReactive() 检查一个对象是否是由 reactive() 或 shallowReactive() 创建的代理
+function isReactive(value: unknown): boolean
+```
+
+## unref
+
+如果参数是 ref，则返回内部值，否则返回参数本身。这是 val = isRef(val) ? val.value : val 计算的一个语法糖
+
+```javascript
+function useFoo(x: number | Ref<number>) {
+  const unwrapped = unref(x)
+  // unwrapped 现在保证为 number 类型
+}
+```
+
+## toRef
+
+可以将值、refs 或 getters 规范化为 refs
+
+```javascript
+const state = reactive({
+  foo: 1,
+  bar: 2,
+})
+
+// 双向 ref，会与源属性同步
+const fooRef = toRef(state, 'foo')
+
+// 更改该 ref 会更新源属性
+fooRef.value++
+console.log(state.foo) // 2
+
+// 更改源属性也会更新该 ref
+state.foo++
+console.log(fooRef.value)
+
+// 3.3版本可以使computed转换为ref形式
+toRef(() => props.foo)
+```
+
+## toValue
+
+3.3 版本可以使用，将值、refs 或 getters 规范化为值。这与 unref() 类似，不同的是此函数也会规范化 getter 函数。如果参数是一个 getter，它将会被调用并且返回它的返回值
+
+```javascript
+toValue(1) //       --> 1
+toValue(ref(1)) //  --> 1
+toValue(() => 1) // --> 1
+```
+
+## toRefs
+
+将一个响应式对象转换为一个普通对象，这个普通对象的每个属性都是指向源对象相应属性的 ref。每个单独的 ref 都是使用 toRef() 创建的
+
+```javascript
+const state = reactive({
+  foo: 1,
+  bar: 2,
+})
+
+const stateAsRefs = toRefs(state)
+/*
+stateAsRefs 的类型：{
+  foo: Ref<number>,
+  bar: Ref<number>
+}
+*/
+
+// 这个 ref 和源属性已经“链接上了”
+state.foo++
+console.log(stateAsRefs.foo.value) // 2
+
+stateAsRefs.foo.value++
+console.log(state.foo) // 3
+
+// 也可以用在props上使props解构出来的数据依旧具有响应性
+const props = defineProps()
+const [count] = toRefs(props)
+console.log(count.value)
+```
+
+## provide 和 inject
 
 ```javascript
 <template>
@@ -669,7 +1029,7 @@ export default {
 }
 ```
 
-## emits 事件注册
+## emits 事件注册（不使用 setup 语法糖的情况）
 
 在 vue3 中使用`$emit`所触发的事件需要在 emits 对象中注册管理，不然程序就会弹出警告
 
@@ -728,196 +1088,6 @@ export default {
     },
     mounted() {
 
-    },
-};
-</script>
-```
-
-## vue3 中的 v-model
-
-### 基础使用方式
-
-```javascript
-//父组件
-<template>
- <children v-model="testA" ></children>
-</template>
-<script>
-import children from "./about/index";
-export default {
-    components: {
-        children,
-    },
-    data(){
-        return {
-            testA:'a'
-        }
-    },
-    methods:{
-
-    }
-};
-</script>
-
-//子组件
-<template>
-    <div>{{ modelValue }}</div>
-    <button @click="change">123412</button>
-</template>
-<script>
-export default {
-    props: {
-        //默认使用v-model绑定的值不在是value而是modelValue
-        modelValue: {
-            type: String,
-            defalut: "",
-        },
-    },
-    //通过model改变prop传入数据的名称的方法不在被使用
-    // model:{}
-
-    methods: {
-        change() {
-            //默认的input方法也改变为update：modelValue的方法
-            this.$emit("update:modelValue",'7777')
-        },
-    },
-};
-</script>
-```
-
-### 自定义多变量名方式
-
-```javascript
-//父组件
-<template>
-  <!-- 不在使用.sync修饰符，而是采用v-model：变量名的方式来替代 -->
- <children v-model:testA="testA"  v-model:testB="testB"></children>
-</template>
-<script>
-import children from "./about/index";
-export default {
-    components: {
-        children,
-    },
-    data(){
-        return {
-            testA:'a',
-            testB:'b'
-        }
-    },
-    methods:{
-
-    }
-};
-</script>
-
-//子组件
-template>
-    <div>{{ testA }}</div>
-    <div>{{ testB }}</div>
-    <button @click="change">123412</button>
-</template>
-<script>
-export default {
-    props: {
-        //传入的方法名由v-model：变量名来决定，且可以传入多个
-        testB: {
-            type: String,
-            defalut: "",
-        },
-        testA:{
-            type:String,
-            defalut:''
-        }
-    },
-    methods: {
-        change() {
-            //改变绑定的数据的方法，改变为update:变量名
-            this.$emit("update:testA",'7777')
-            this.$emit("update:testB",'3333')
-        },
-    },
-};
-</script>
-```
-
-### 修饰符
-
-::: info
-`v-model`自带有一些修饰符，这些修饰符可以帮助我们快速的处理数据。
-
-- `v-model.trim`:将绑定的值的首尾空格全部自动去掉。
-- `v-model.lazy`：在值发生改变的时候，让改变的事件延迟执行，例如 input 标签的 change 事件，值发生改变时只会在按下回车键或者失去了焦点后触发。
-- `v-modde.number`：将绑定的值转变为数字，前提是绑定的值能被 parseFloat()方法解析。
-  :::
-
-### v-model 的自定义修饰符
-
-```javascript
-//父组件
-<template>
- <children v-model.modA="testA"  v-model:testB.modB="testB"></children>
-</template>
-<script>
-import children from "./about/index";
-export default {
-    components: {
-        children,
-    },
-    data(){
-        return {
-            testA:'a',
-            testB:'b'
-        }
-    },
-    methods:{
-
-    }
-};
-</script>
-
-//子组件
-<template>
-    <div>{{ modelValue }}</div>
-    <div>{{ testB }}</div>
-    <button @click="change">123412</button>
-</template>
-<script>
-export default {
-    props: {
-        //传入的方法名由v-model：变量名来决定，且可以传入多个
-        testB: {
-            type: String,
-            defalut: "",
-        },
-        modelValue:{
-            type:String,
-            defalut:''
-        },
-       //要在props中定义自定义修饰符的对象
-       //使用默认的v-mode则修饰符对象为
-       modelModifiers:{
-           defalut:()=>({})
-       },
-       //使用自定义变量则需要改变为 变量名+Modifiers
-       testBModifiers:{
-           defalut:()=>({})
-       }
-    },
-    methods: {
-        change() {
-            //使用方法
-            if(this.modelModifiers.modA){
-                let value = this.modelValue + '222';
-                this.$emit('update:modelValue',value)
-            }
-
-            if(this.testBModifiers.modB){
-                let value = this.testB +'444';
-                this.$emit('update:testB',value)
-            }
-        },
     },
 };
 </script>
