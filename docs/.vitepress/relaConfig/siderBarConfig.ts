@@ -7,7 +7,7 @@ export const sidebar: DefaultTheme.Sidebar = {
       collapsed: true,
       items: [
         {
-          text: 'vue的基础理解',
+          text: 'vue2的基础理解',
           link: '/vue/vue.md'
         },
         {

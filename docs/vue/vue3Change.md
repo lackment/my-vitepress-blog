@@ -1852,12 +1852,11 @@ export default {
 </script>
 ```
 
-## vue3 中$attrs 的变化
+## $attrs 的变化和defineOptions
 
 vue3 中移除$listener对象，并将其融合进$attrs 对象中，同时将 class 和 style 上的内容融合进$attrs 中
 
 ```javascript
-//父组件
 //父组件
 <template>
     <div class="home" id="home">
@@ -1911,11 +1910,26 @@ export default {
 
     </div>
 </template>
+
+// 3.3 版本以前无法在setup语法糖内这么写，只能是分开写
 <script>
 import { onMounted } from '@vue/runtime-core'
 export default {
     inheritAttrs:false
 }
+</script>
+<script setup>
+
+</script>
+
+// 3.3版本可以使用defineOtions来进行操作
+<script setup>
+defineOptions({
+  inheritAttrs: false,
+  customOptions: {
+    /* ... */
+  }
+})
 </script>
 
 ```
