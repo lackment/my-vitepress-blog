@@ -38,7 +38,7 @@ export default defineConfig({
     nav,
     outline: {
       level: [2, 6],
-      label: "Menu",
+      label: "Article Directories",
     },
     sidebar,
     socialLinks: [

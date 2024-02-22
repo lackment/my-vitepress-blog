@@ -251,216 +251,6 @@ onMounted(() => {
 </script>
 ```
 
-## v-model
-
-### 基础使用方式
-
-```javascript
-<script setup>
-
-// 定义 props，modelValue 是 v-model 默认使用的 prop
-const props = defineProps({
-  modelValue: String // 或者另一个适当的类型
-})
-
-// 定义 emits，包括 v-model 更新的事件
-const emit = defineEmits(['update:modelValue'])
-</script>
-```
-
-### 自定义多变量名方式
-
-```javascript
-//父组件
-<template>
-  <!-- 不在使用.sync修饰符，而是采用v-model：变量名的方式来替代 -->
- <children v-model:testA="testA"  v-model:testB="testB"></children>
-</template>
-<script setup>
- const testA = 'a';
- const testB = 'b'
-</script>
-
-//子组件
-template>
-    <div>{{ testA }}</div>
-    <div>{{ testB }}</div>
-</template>
-<script setup>
-
-const props = defineProps({
-  testA: String // 或者另一个适当的类型
-  testB: String // 或者另一个适当的类型
-})
-const emit = defineEmits(['update:testA','update:testB'])
-</script>
-```
-
-### 修饰符
-
-::: info
-`v-model`自带有一些修饰符，这些修饰符可以帮助我们快速的处理数据。
-
-- `v-model.trim`:将绑定的值的首尾空格全部自动去掉。
-- `v-model.lazy`：在值发生改变的时候，让改变的事件延迟执行，例如 input 标签的 change 事件，值发生改变时只会在按下回车键或者失去了焦点后触发。
-- `v-modde.number`：将绑定的值转变为数字，前提是绑定的值能被 parseFloat()方法解析。
-  :::
-
-### v-model 的自定义修饰符
-
-```javascript
-// 不带变量的v-model的方式
-// 父组件
-<template>
- <MyComponent v-model.capitalize="myText" />
-</template>
-
-// 子组件
-<script setup>
-const props = defineProps({
-  modelValue: String,
-  modelModifiers: { default: () => ({}) }
-})
-
-const emit = defineEmits(['update:modelValue'])
-
-function emitValue(e) {
-  let value = e.target.value
-  if (props.modelModifiers.capitalize) {
-    value = value.charAt(0).toUpperCase() + value.slice(1)
-  }
-  emit('update:modelValue', value)
-}
-</script>
-
-<template>
-  <input type="text" :value="modelValue" @input="emitValue" />
-</template>
-
-
-// 带变量的v-model的方式
-// 父组件
-<UserName
-  v-model:first-name.capitalize="first"
-  v-model:last-name.uppercase="last"
-/>
-
-// 子组件
-<script setup>
-const props = defineProps({
-firstName: String,
-lastName: String,
-firstNameModifiers: { default: () => ({}) },
-lastNameModifiers: { default: () => ({}) }
-})
-defineEmits(['update:firstName', 'update:lastName'])
-
-console.log(props.firstNameModifiers) // { capitalize: true }
-console.log(props.lastNameModifiers) // { uppercase: true}
-</script>
-```
-
-### defineModel
-
-3.4 版本以后可以使用，v-model 的语法糖
-
-```javascript
-// 父组件
-<Child v-model="count" />
-
-// 子组件
-<script setup>
-// 返回的是一个ref对象
-const model = defineModel({type:number,required: true,default:0})
-
-function update() {
-  model.value++
-}
-</script>
-
-<template>
-  <input v-model="model" />
-</template>
-
-
-// 有参数的时候
-// 父组件
-<MyComponent v-model:title="bookTitle" />
-
-// 子组件
-<script setup>
-const title = defineModel('title')
-// 或者写成
-const title = defineModel('title', { required: true })
-</script>
-
-<template>
-  <input type="text" v-model="title" />
-</template>
-
-// 多个参数的时候
-// 父组件
-<UserName
-  v-model:first-name="first"
-  v-model:last-name="last"
-/>
-
-// 子组件
-<script setup>
-const firstName = defineModel('firstName')
-const lastName = defineModel('lastName')
-</script>
-
-<template>
-  <input type="text" v-model="firstName" />
-  <input type="text" v-model="lastName" />
-</template>
-
-
-// 处理自定义修饰符
-// 父组件
-<MyComponent v-model.capitalize="myText" />
-
-// 子组件
-<script setup>
-const [model, modifiers] = defineModel({
-  set(value) {
-    // 改变model时触发
-    if (modifiers.capitalize) {
-      return value.charAt(0).toUpperCase() + value.slice(1)
-    }
-    return value
-  },
-  get(value){
-    // 获取model时触发
-    return value
-
-  }
-})
-</script>
-
-<template>
-  <input type="text" v-model="model" />
-</template>
-
-// 多参数的修饰符操作
-// 父组件
-<UserName
-  v-model:first-name.capitalize="first"
-  v-model:last-name.uppercase="last"
-/>
-
-// 子组件
-<script setup>
-const [firstName, firstNameModifiers] = defineModel('firstName')
-const [lastName, lastNameModifiers] = defineModel('lastName')
-
-console.log(firstNameModifiers) // { capitalize: true }
-console.log(lastNameModifiers) // { uppercase: true}
-</script>
-
-```
-
 ## reactive
 
 用于创建一个响应性对象或者数组，不能使用 reactive 创建基础类型数据，因为 reactive 使用 proxy 来对数据进行代理操作，proxy 无法操作基本类型的值
@@ -890,6 +680,216 @@ console.log(state.foo) // 3
 const props = defineProps()
 const [count] = toRefs(props)
 console.log(count.value)
+```
+
+## v-model
+
+### 基础使用方式
+
+```javascript
+<script setup>
+
+// 定义 props，modelValue 是 v-model 默认使用的 prop
+const props = defineProps({
+  modelValue: String // 或者另一个适当的类型
+})
+
+// 定义 emits，包括 v-model 更新的事件
+const emit = defineEmits(['update:modelValue'])
+</script>
+```
+
+### 自定义多变量名方式
+
+```javascript
+//父组件
+<template>
+  <!-- 不在使用.sync修饰符，而是采用v-model：变量名的方式来替代 -->
+ <children v-model:testA="testA"  v-model:testB="testB"></children>
+</template>
+<script setup>
+ const testA = 'a';
+ const testB = 'b'
+</script>
+
+//子组件
+template>
+    <div>{{ testA }}</div>
+    <div>{{ testB }}</div>
+</template>
+<script setup>
+
+const props = defineProps({
+  testA: String // 或者另一个适当的类型
+  testB: String // 或者另一个适当的类型
+})
+const emit = defineEmits(['update:testA','update:testB'])
+</script>
+```
+
+### 修饰符
+
+::: info
+`v-model`自带有一些修饰符，这些修饰符可以帮助我们快速的处理数据。
+
+- `v-model.trim`:将绑定的值的首尾空格全部自动去掉。
+- `v-model.lazy`：在值发生改变的时候，让改变的事件延迟执行，例如 input 标签的 change 事件，值发生改变时只会在按下回车键或者失去了焦点后触发。
+- `v-modde.number`：将绑定的值转变为数字，前提是绑定的值能被 parseFloat()方法解析。
+  :::
+
+### v-model 的自定义修饰符
+
+```javascript
+// 不带变量的v-model的方式
+// 父组件
+<template>
+ <MyComponent v-model.capitalize="myText" />
+</template>
+
+// 子组件
+<script setup>
+const props = defineProps({
+  modelValue: String,
+  modelModifiers: { default: () => ({}) }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+function emitValue(e) {
+  let value = e.target.value
+  if (props.modelModifiers.capitalize) {
+    value = value.charAt(0).toUpperCase() + value.slice(1)
+  }
+  emit('update:modelValue', value)
+}
+</script>
+
+<template>
+  <input type="text" :value="modelValue" @input="emitValue" />
+</template>
+
+
+// 带变量的v-model的方式
+// 父组件
+<UserName
+  v-model:first-name.capitalize="first"
+  v-model:last-name.uppercase="last"
+/>
+
+// 子组件
+<script setup>
+const props = defineProps({
+firstName: String,
+lastName: String,
+firstNameModifiers: { default: () => ({}) },
+lastNameModifiers: { default: () => ({}) }
+})
+defineEmits(['update:firstName', 'update:lastName'])
+
+console.log(props.firstNameModifiers) // { capitalize: true }
+console.log(props.lastNameModifiers) // { uppercase: true}
+</script>
+```
+
+### defineModel
+
+3.4 版本以后可以使用，v-model 的语法糖
+
+```javascript
+// 父组件
+<Child v-model="count" />
+
+// 子组件
+<script setup>
+// 返回的是一个ref对象
+const model = defineModel({type:number,required: true,default:0})
+
+function update() {
+  model.value++
+}
+</script>
+
+<template>
+  <input v-model="model" />
+</template>
+
+
+// 有参数的时候
+// 父组件
+<MyComponent v-model:title="bookTitle" />
+
+// 子组件
+<script setup>
+const title = defineModel('title')
+// 或者写成
+const title = defineModel('title', { required: true })
+</script>
+
+<template>
+  <input type="text" v-model="title" />
+</template>
+
+// 多个参数的时候
+// 父组件
+<UserName
+  v-model:first-name="first"
+  v-model:last-name="last"
+/>
+
+// 子组件
+<script setup>
+const firstName = defineModel('firstName')
+const lastName = defineModel('lastName')
+</script>
+
+<template>
+  <input type="text" v-model="firstName" />
+  <input type="text" v-model="lastName" />
+</template>
+
+
+// 处理自定义修饰符
+// 父组件
+<MyComponent v-model.capitalize="myText" />
+
+// 子组件
+<script setup>
+const [model, modifiers] = defineModel({
+  set(value) {
+    // 改变model时触发
+    if (modifiers.capitalize) {
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    }
+    return value
+  },
+  get(value){
+    // 获取model时触发
+    return value
+
+  }
+})
+</script>
+
+<template>
+  <input type="text" v-model="model" />
+</template>
+
+// 多参数的修饰符操作
+// 父组件
+<UserName
+  v-model:first-name.capitalize="first"
+  v-model:last-name.uppercase="last"
+/>
+
+// 子组件
+<script setup>
+const [firstName, firstNameModifiers] = defineModel('firstName')
+const [lastName, lastNameModifiers] = defineModel('lastName')
+
+console.log(firstNameModifiers) // { capitalize: true }
+console.log(lastNameModifiers) // { uppercase: true}
+</script>
+
 ```
 
 ## provide 和 inject
