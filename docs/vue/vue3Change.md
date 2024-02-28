@@ -892,6 +892,305 @@ console.log(lastNameModifiers) // { uppercase: true}
 
 ```
 
+## $attrs 的变化和 defineOptions
+
+vue3 中移除$listener对象，并将其融合进$attrs 对象中，同时将 class 和 style 上的内容融合进$attrs 中
+
+```javascript
+//父组件
+<template>
+    <div class="home" id="home">
+        <test-slot id='test'  @test='testChange' class="my-class" style='color:red'>
+
+        </test-slot>
+    </div>
+</template>
+
+<script>
+import TestSlot from "./components/test-slots";
+export default {
+    components: {
+        TestSlot,
+    },
+    data(){
+        return {
+            test:'22'
+        }
+    }
+
+};
+</script>
+
+//vue2对应的子组件
+//插槽组件
+<template>
+    <div>
+     //虽然写了inheritAttrs：false,但是传入的class和style依旧由根组件继承
+     //这里div变为<div class=’my-class‘ style="color:red">
+      <p v-bind='$attrs' v-on='$listeners'></P>
+       //这里p变为 <p id='test'  @test='testChange'></p>
+       //$attrs为{id:'22'}
+       //$listeners为{onTest:testChange},注意v-on绑定的方法前面都会加上on,注意这里的testChange指的是父组件传入的那个方法
+    </div>
+</template>
+<script>
+import { onMounted } from '@vue/runtime-core'
+export default {
+    inheritAttrs:false
+}
+</script>
+
+//vue3对应的子组件
+//插槽组件
+<template>
+    <div>
+      <p v-bind='$attrs'></P>
+       //这里p变为 <p id='test'  @test='testChange' class="my-class" style= "color:red" ></p>
+       //$attrs为{id:'22',onTest:testChange,class:'my-class',style:{color:'red'}}
+
+    </div>
+</template>
+
+// 3.3 版本以前无法在setup语法糖内这么写，只能是分开写
+<script>
+import { onMounted } from '@vue/runtime-core'
+export default {
+    inheritAttrs:false
+}
+</script>
+<script setup>
+
+</script>
+
+// 3.3版本可以使用defineOtions来进行操作
+<script setup>
+defineOptions({
+  inheritAttrs: false,
+  customOptions: {
+    /* ... */
+  }
+})
+</script>
+
+```
+
+## shallowRef
+
+和 ref 不同，浅层 ref 的内部值将会原样存储和暴露，并且不会被深层递归地转为响应式。只有对 .value 的访问是响应式的
+
+```javascript
+const state = shallowRef({ count: 1 })
+
+// 不会触发更改
+state.value.count = 2
+
+// 会触发更改
+state.value = { count: 2 }
+```
+
+## triggerRef
+
+强制触发依赖于一个浅层 ref 的副作用，这通常在对浅引用的内部值进行深度变更后使用
+
+```javascript
+const shallow = shallowRef({
+  greet: 'Hello, world',
+})
+
+// 触发该副作用第一次应该会打印 "Hello, world"
+watchEffect(() => {
+  console.log(shallow.value.greet)
+})
+
+// 这次变更不应触发副作用，因为这个 ref 是浅层的
+shallow.value.greet = 'Hello, universe'
+
+// 打印 "Hello, universe"
+triggerRef(shallow)
+```
+
+## customRef
+
+创建一个自定义的 ref，显式声明对其依赖追踪和更新触发的控制方式
+
+```javascript
+import { customRef } from 'vue'
+
+export function useDebouncedRef(value, delay = 200) {
+  let timeout
+  return customRef((track, trigger) => {
+    return {
+      get() {
+        track()
+        return value
+      },
+      set(newValue) {
+        clearTimeout(timeout)
+        timeout = setTimeout(() => {
+          value = newValue
+          trigger()
+        }, delay)
+      }
+    }
+  })
+}
+
+
+// 使用
+<script setup>
+import { useDebouncedRef } from './debouncedRef'
+const text = useDebouncedRef('hello')
+</script>
+
+<template>
+  <input v-model="text" />
+</template>
+```
+
+## shallowReactive
+
+reactive 的浅层作用，只对 reactive 根级别的属性有响应性
+
+```javascript
+const state = shallowReactive({
+  foo: 1,
+  nested: {
+    bar: 2,
+  },
+})
+
+// 更改状态自身的属性是响应式的
+state.foo++
+
+// ...但下层嵌套对象不会被转为响应式
+isReactive(state.nested) // false
+
+// 不是响应式的
+state.nested.bar++
+```
+
+## shallowReadonly
+
+readonly 的浅层作用
+
+```javascript
+const state = shallowReadonly({
+  foo: 1,
+  nested: {
+    bar: 2,
+  },
+})
+
+// 更改状态自身的属性会失败
+state.foo++
+
+// ...但可以更改下层嵌套对象
+isReadonly(state.nested) // false
+
+// 这是可以通过的
+state.nested.bar++
+```
+
+## toRaw
+
+返回一个响应性对象的源对象，不建议保存对源对象的持久引用，请谨慎使用
+
+```javascript
+const foo = {}
+const reactiveFoo = reactive(foo)
+
+console.log(toRaw(reactiveFoo) === foo) // true
+```
+
+## markRaw
+
+将一个对象标记为“原始”对象，这意味着 Vue 响应式系统会跳过这个对象，不会对其进行代理或响应式变换。这对于优化性能或与第三方库集成时尤其有用
+
+```javascript
+import { markRaw, reactive } from 'vue'
+
+let myObject = {
+  complex: new ComplexLibraryInstance(),
+}
+
+// 标记这个对象或实例为原始的
+myObject.complex = markRaw(myObject.complex)
+
+// 现在，即使包裹在 reactive 内，Vue 也不会尝试使 complex 属性成为响应式
+const state = reactive(myObject)
+
+// state.complex 是一个非响应式的原始对象
+console.log(state.complex) // 将直接输出原始的 ComplexLibraryInstance 实例
+```
+
+::: tip
+使用 markRaw 是一种性能优化手段，因为它让你能够避免把不需要的对象转换为响应式对象，这可以减少内存的占用和初始化响应式转换的开销
+但是一旦对象被 markRaw 标记，它及其包含的所有嵌套对象都不会再被 Vue 转换为响应式对象，因此在使用 markRaw 时需要谨慎考虑
+:::
+
+## effectScope
+
+用于提供一个可以控制多个响应式副作用（如 watch 和 computed）生命周期的作用域
+
+每当你创建一个 watch、computed 或任何基于 effect（如 reactive 或 ref）的响应式响应，它实际上都是一个副作用。在没有 effectScope 的情况下，管理这些副作用的生命周期可能会比较困难，特别是当有很多副作用需要一起停止时
+
+effectScope 允许你将这些副作用组织到一个可管理的作用域内。当作用域被停止（调用其 stop 方法）时，它内部所有的副作用都会一起停止。这很有用，比如当你的组件被卸载时，你可能想要清除所有的响应式副作用，以便它们不会继续监听变化并触发更新，以此避免潜在的内存泄漏
+
+```javascript
+import { effectScope, reactive, ref, watch } from 'vue'
+
+const scope = effectScope()
+
+scope.run(() => {
+  // reactive state
+  const state = reactive({ count: 0 })
+
+  // computed value
+  const doubled = computed(() => state.count * 2)
+
+  // watch effect
+  watch(doubled, (newVal) => {
+    console.log('Doubled value is now:', newVal)
+  })
+
+  // everything created in here is part of the effect scope
+})
+
+// 在组件卸载时停止作用域
+onUnmounted(() => {
+  scope.stop()
+  // state、doubled 和 watch 都在由 effectScope 创建的作用域内部运行。在调用 scope.stop() 之后，所有的响应式连接（包括 watch 和 computed）都会被停止
+})
+```
+
+## getCurrentScope 和 onScopeDispose
+
+getCurrentScope 用于返回当前活跃的 effect 作用域，onScopeDispose 用于当 effect 作用域停止时，执行回调函数，可以作为 onUnmounted 的替代品，因为一个 Vue 组件的 setup() 函数也是在一个 effect 作用域中调用的
+
+```javascript
+import { effectScope, getCurrentScope, onScopeDispose } from 'vue'
+
+// 在 setup 函数外创建一个新的作用域
+const scope = effectScope()
+
+// 激活作用域
+scope.run(() => {
+  // ...定义响应式状态和副作用
+
+  // 在 setup 函数内或一个 effectScope 的回调内
+  // 获取当前活动的作用域
+  const currentScope = getCurrentScope()
+
+  // 使用 onScopeDispose 注册一个回调，当作用域停止时执行
+  onScopeDispose(() => {
+    console.log('Current scope is being disposed!')
+  })
+
+  // 测试 currentScope 和 scope 是否相同
+  console.log('Scopes are equal:', currentScope === scope)
+})
+```
+
 ## provide 和 inject
 
 ```javascript
@@ -1850,88 +2149,6 @@ export default {
     },
 }
 </script>
-```
-
-## $attrs 的变化和defineOptions
-
-vue3 中移除$listener对象，并将其融合进$attrs 对象中，同时将 class 和 style 上的内容融合进$attrs 中
-
-```javascript
-//父组件
-<template>
-    <div class="home" id="home">
-        <test-slot id='test'  @test='testChange' class="my-class" style='color:red'>
-
-        </test-slot>
-    </div>
-</template>
-
-<script>
-import TestSlot from "./components/test-slots";
-export default {
-    components: {
-        TestSlot,
-    },
-    data(){
-        return {
-            test:'22'
-        }
-    }
-
-};
-</script>
-
-//vue2对应的子组件
-//插槽组件
-<template>
-    <div>
-     //虽然写了inheritAttrs：false,但是传入的class和style依旧由根组件继承
-     //这里div变为<div class=’my-class‘ style="color:red">
-      <p v-bind='$attrs' v-on='$listeners'></P>
-       //这里p变为 <p id='test'  @test='testChange'></p>
-       //$attrs为{id:'22'}
-       //$listeners为{onTest:testChange},注意v-on绑定的方法前面都会加上on,注意这里的testChange指的是父组件传入的那个方法
-    </div>
-</template>
-<script>
-import { onMounted } from '@vue/runtime-core'
-export default {
-    inheritAttrs:false
-}
-</script>
-
-//vue3对应的子组件
-//插槽组件
-<template>
-    <div>
-      <p v-bind='$attrs'></P>
-       //这里p变为 <p id='test'  @test='testChange' class=’my-class‘ style="color:red" ></p>
-       //$attrs为{id:'22',onTest:testChange,class:'my-class',style:{color:'red'}}
-
-    </div>
-</template>
-
-// 3.3 版本以前无法在setup语法糖内这么写，只能是分开写
-<script>
-import { onMounted } from '@vue/runtime-core'
-export default {
-    inheritAttrs:false
-}
-</script>
-<script setup>
-
-</script>
-
-// 3.3版本可以使用defineOtions来进行操作
-<script setup>
-defineOptions({
-  inheritAttrs: false,
-  customOptions: {
-    /* ... */
-  }
-})
-</script>
-
 ```
 
 ## vue3 中自定义属性的变化
