@@ -11,7 +11,21 @@ top: 2
 
 ## vue3 的生命周期
 
-![vue3生命周期](./images/vue3records.png)
+::: info
+
+- onBeforeMount // 此时虚拟 Dom 已经完成，但是未渲染到 Dom 中, 完成模板的解析以及指令的运行。
+- onMounted // 创建期的最后一个钩子，此时 Dom 已经渲染完毕，this.$el 可获取，其为`<div id =‘app’> </div>`, 这个钩子函数不会在服务端渲染时执行
+- onBeforeUpdate // 此时 vue 中 Data 的数据已更新完了，但是页面中的数据并未重新渲染, 这个钩子函数不会在服务端渲染时执行
+- onUpdated // 更新完毕，页面中数据和 Data 中的数据保持一致, 这个钩子函数不会在服务端渲染时执行
+- onBeforeUnmount // vue 销毁前的最后一刻，data 和 method 都可以使用, 这个钩子函数不会在服务端渲染时执行
+- onUnmounted // 在组件实例被卸载之后调用, 这个钩子函数不会在服务端渲染时执行
+- onErrorCaptured // 组件渲染时报错，捕获该错误
+- onRenderTracked // 当组件在渲染过程中追踪到响应性依赖时执行，例如给一个 ref 变量增加响应性时，只在开发模式下有用
+- onRenderTriggered // 当某一个响应性变量改变触发了组件重新渲染时执行，只在开发模式下有用
+- onActivated // 组件被 keep-alive 包裹，当调用到该组件时执行，这个钩子函数不会在服务端渲染时执行
+- onDeactivated // 组件被 keep-alive 包裹,当该组件被卸载时执行 这个钩子函数不会在服务端渲染时执行
+- onServerPrefetch // 组件实例在服务器上被渲染之前执行，只适用于服务端渲染
+  :::
 
 ## 组合式 API
 
@@ -1217,13 +1231,16 @@ export default defineComponent({
         // 传递写法二
         provide("name", "ly"); //传入两个值，第一个要传递数据的名称，第二个值是要传递是数据的值
         let age = ref("");
-        provide("age", age); //如果要使传递的数据具有响应的特性，那么传入的值需要通过ref或者reactive包装
-
         const changeAge = (age) => {
             //要修改传递的数据的值，建议在源头提供修改这个数值的方法，并通过provide传递下去
             age.value = age;
         };
-        provide("changeAge", changeAge);
+        provide("age", age); //如果要使传递的数据具有响应的特性，那么传入的值需要通过ref或者reactive包装
+
+        provide("ageObj", {
+                   age,
+                   changeAge
+                });
 
         let e = ref(0);
         provide("e", readonly(e)); //通过readonly就可以保证传递的数组不会被引用这些数据的组件所改变
@@ -1251,8 +1268,8 @@ export default defineComponent({
 
     setup() {
         //注入写法三
-        // re就是传递的age值
-        let re = inject("age", "555");
+        // re就是传递的age值 同时设置其默认值为555
+        let age = inject("age", "555");
     },
 
 });
@@ -1263,17 +1280,22 @@ export default defineComponent({
 
 ::: tip
 
-- 可以使组件的一部分 html 代码放置另一处执行，但与此部分有关的 js 代码仍然可以在当前组件内编写；
-
-- teleport 注入（或者说 to 指向）的地方不能是当前组件的父组件或者子组件
+- 可以使组件的一部分 html 代码放置另一处渲染，但与此部分有关的 js 代码仍然可以在当前组件内编写，同时这部分html不会在当前组件渲染
+- Teleport 到的目标节点在组件渲染时已经存在于 DOM 中；如果目标节点还未渲染，Teleport 可能不会按预期工作
   :::
 
 ```javascript
+// 子组件
 <template>
     <div>
-     <!-- teleport组件 -->
-    <!-- to是DOM获取器 -->
-        <teleport to="#TestTeleport">
+        <teleport to="#TestTeleport" :disabled="isMobile">
+            <button @click="tipTest = true">开启提示文字</button>
+            <div v-if="tipTest">
+                <p>提示文字</p>
+            </div>
+        </teleport>
+        // 可以多个teleport指向相同的节点
+        <teleport to="#TestTeleport" :disabled="isMobile">
             <button @click="tipTest = true">开启提示文字</button>
             <div v-if="tipTest">
                 <p>提示文字</p>
@@ -1281,51 +1303,82 @@ export default defineComponent({
         </teleport>
     </div>
 </template>
-<script>
-import {
-    ref,
-} from "vue";
-export default {
-    setup(props, content) {
-        //与teleport有关的代码仍然可以在当前组件编写
-        let tipTest = ref(false);
-        return {
-            tipTest,
-        };
-    },
-};
+<script setup>
+import { ref } from "vue";
+// 与teleport有关的代码仍然可以在当前组件编写
+let tipTest = ref(false); 
+
+let isMobile = false // 是否禁用teleport
+
 </script>
 ```
 
 ```javascript
+// 父组件
 <template>
-
   <!-- teleport注入组件 -->
-  <test></test>
+  <div id="TestTeleport"></div>
  <!-- 引用teleport组件 -->
   <children></children>
 </template>
-<script>
-import children from "./about/index";
-import Test from './about/test.vue';
-export default {
-   components:{
-     children,
-     Test
-   },
-}
-</script>
 ```
 
+## suspense（组件默认状态）
+
 ```javascript
+// suspense提供两个插槽，一个是defalut,一个是fallback,代表着两个状态，当default中的内容还未准备好则切换到fallback，当default中的准备好在切换到default的内容
+// 第一种用于加载异步组件，当异步组件还未加载好，则展示loading内容
 <template>
-     <!-- teleport注入组件 -->
-     <div id="TestTeleport"></div>
+  <suspense v-if="loadAsync">
+    <template #default>
+      <AsyncComponent></AsyncComponent>
+    </template>
+    <template #fallback>
+      <div class="loading"></div>
+    </template>
+  </suspense>
+</template>
+mport { defineAsyncComponent } from "vue";
+export default {
+  components: {
+    HelloWorld,
+    AsyncComponent: defineAsyncComponent(() =>
+       import("./components/async-component.vue");
+    )
+  },
+};
+</script>
+
+//也可以由default中的内容手动的控制fallback状态
+<template>
+  <h1>this is async component</h1>
 </template>
 <script>
+const sleep = time => {
+  return new Promise((reslove, reject) => {
+    setTimeout(() => {
+      reslove();
+    }, time);
+  });
+};
 export default {
+  name: "AsyncComponent",
+  async setup() {
+    // ... some code 将初始化页面需要的数据放在此处，
+    //注意setup中只会执行第一个await(包括该await)之前的内容
+    await sleep(3000); //模拟数据请求,当3秒时间还未到，则一直保持fallback的内容,到了则展示当前组件内容
+  }
+};
+</script>
 
-}
+//可以通过onErrorCapture 捕获加载组件过程中出现的错误
+import {onErrorCapture} from 'vue'
+export default {
+   setup() {
+       onErrorCapture =(event)=>{
+       }
+  }
+};
 ```
 
 ## emits 事件注册（不使用 setup 语法糖的情况）
@@ -2525,17 +2578,6 @@ export default {
 }
 ```
 
-## destroy 和 beforeDestroy 的变化
-
-::: info
-
-- destroy 改变为 unmounted 事件
-
-- beforeDestroy 改变为 beforeunmount 事件
-
-- 移除$destory 实例方法
-  :::
-
 ## Vue3 移除的方法
 
 keyCodes 和 Vue.Config.keyCodes 方法不再被使用，因为 keycodes 方法已经废弃
@@ -2653,64 +2695,6 @@ const app = createApp(
 
 ```javascript
 import { set, get } from 'vue'
-```
-
-## suspense（组件默认状态）
-
-```javascript
-//suspense提供两个插槽，一个是defalut,一个是fallback,代表着两个状态，当default中的内容还未准备好则切换到fallback，当default中的准备好在切换到default的内容
-//第一种用于加载异步组件，当异步组件还未加载好，则展示loading内容
-<template>
-  <suspense v-if="loadAsync">
-    <template #default>
-      <AsyncComponent></AsyncComponent>
-    </template>
-    <template #fallback>
-      <div class="loading"></div>
-    </template>
-  </suspense>
-</template>
-mport { defineAsyncComponent } from "vue";
-export default {
-  components: {
-    HelloWorld,
-    AsyncComponent: defineAsyncComponent(() =>
-       import("./components/async-component.vue");
-    )
-  },
-};
-</script>
-
-//也可以由default中的内容手动的控制fallback状态
-<template>
-  <h1>this is async component</h1>
-</template>
-<script>
-const sleep = time => {
-  return new Promise((reslove, reject) => {
-    setTimeout(() => {
-      reslove();
-    }, time);
-  });
-};
-export default {
-  name: "AsyncComponent",
-  async setup() {
-    // ... some code 将初始化页面需要的数据放在此处，
-    //注意setup中只会执行第一个await(包括该await)之前的内容
-    await sleep(3000); //模拟数据请求,当3秒时间还未到，则一直保持fallback的内容,到了则展示当前组件内容
-  }
-};
-</script>
-
-//可以通过onErrorCapture 捕获加载组件过程中出现的错误
-import {onErrorCapture} from 'vue'
-export default {
-   setup() {
-       onErrorCapture =(event)=>{
-       }
-  }
-};
 ```
 
 ## vue 性能优化

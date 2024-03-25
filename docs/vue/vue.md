@@ -14,13 +14,13 @@ top: 1
 
 ::: info
 
-- beforCreate // 此时所有的数据并未写入，可在此时做初始化操作
-- Created // 此时 data 和 method 已经存在，可发送请求，进行数值的处理,this.$data已经存在，this.$data === data.prototype，数据的绑定、watch 和 event 的回调、computed 的计算也已经完成
-- beforMount // 此时虚拟 Dom 已经完成，但是未渲染到 Dom 中, 完成模板的解析以及指令的运行。
+- beforeCreate // 此时所有的数据并未写入，可在此时做初始化操作
+- created // 此时 data 和 method 已经存在，可发送请求，进行数值的处理,this.$data已经存在，this.$data === data.prototype，数据的绑定、watch 和 event 的回调、computed 的计算也已经完成
+- beforeMount // 此时虚拟 Dom 已经完成，但是未渲染到 Dom 中, 完成模板的解析以及指令的运行。
 - Mounted // 创建期的最后一个钩子，此时 Dom 已经渲染完毕，this.$el 可获取，其为`<div id =‘app’> </div>`
-- beforUpdate // 此时 vue 中 Data 的数据已更新完了，但是页面中的数据并未重新渲染
-- Updated // 更新完毕，页面中数据和 Data 中的数据保持一致
-- beforDestroy // vue 销毁前的最后一刻，data 和 method 都可以使用
+- beforeUpdate // 此时 vue 中 Data 的数据已更新完了，但是页面中的数据并未重新渲染
+- updated // 更新完毕，页面中数据和 Data 中的数据保持一致
+- beforeDestroy // vue 销毁前的最后一刻，data 和 method 都可以使用
 - destroy // 被销毁
   :::
 
