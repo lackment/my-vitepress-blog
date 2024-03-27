@@ -14,7 +14,7 @@ top: 2
 ::: info
 
 - onBeforeMount // 此时虚拟 Dom 已经完成，但是未渲染到 Dom 中, 完成模板的解析以及指令的运行。
-- onMounted // 创建期的最后一个钩子，此时 Dom 已经渲染完毕，this.$el 可获取，其为`<div id =‘app’> </div>`, 这个钩子函数不会在服务端渲染时执行
+- onMounted // 创建期的最后一个钩子，此时 Dom 已经渲染完毕，this.$el 可获取，其为`<div id =‘app’> </div>`,不包括异步组件和 suspense 组件的渲染完成，这个钩子函数不会在服务端渲染时执行
 - onBeforeUpdate // 此时 vue 中 Data 的数据已更新完了，但是页面中的数据并未重新渲染, 这个钩子函数不会在服务端渲染时执行
 - onUpdated // 更新完毕，页面中数据和 Data 中的数据保持一致, 这个钩子函数不会在服务端渲染时执行
 - onBeforeUnmount // vue 销毁前的最后一刻，data 和 method 都可以使用, 这个钩子函数不会在服务端渲染时执行
@@ -1280,7 +1280,7 @@ export default defineComponent({
 
 ::: tip
 
-- 可以使组件的一部分 html 代码放置另一处渲染，但与此部分有关的 js 代码仍然可以在当前组件内编写，同时这部分html不会在当前组件渲染
+- 可以使组件的一部分 html 代码放置另一处渲染，但与此部分有关的 js 代码仍然可以在当前组件内编写，同时这部分 html 不会在当前组件渲染
 - Teleport 到的目标节点在组件渲染时已经存在于 DOM 中；如果目标节点还未渲染，Teleport 可能不会按预期工作
   :::
 
@@ -1306,7 +1306,7 @@ export default defineComponent({
 <script setup>
 import { ref } from "vue";
 // 与teleport有关的代码仍然可以在当前组件编写
-let tipTest = ref(false); 
+let tipTest = ref(false);
 
 let isMobile = false // 是否禁用teleport
 
@@ -1547,6 +1547,41 @@ export default {
 
 }
 </style>
+```
+
+## CSS Modules
+
+```javascript
+<template>
+  <p :class="$style.red">This should be red</p>
+</template>
+
+<style module>
+.red {
+  color: red;
+}
+</style>
+
+// 自定义module的名称
+<template>
+  <p :class="classes.red">red</p>
+</template>
+
+<style module="classes">
+.red {
+  color: red;
+}
+</style>
+
+// 是用hook方法获取
+import { useCssModule } from 'vue'
+
+// 在 setup() 作用域中...
+// 默认情况下, 返回 <style module> 的 class
+useCssModule()
+
+// 具名情况下, 返回 <style module="classes"> 的 class
+useCssModule('classes')
 ```
 
 ## vue3 中异步引入组件

@@ -13,63 +13,128 @@ author: 'LackMent'
 
 前端页面的路由通过 hash 模式实现，每次跳转并不是切换页面，而是在同一个页面内进行跳转，也称为 spa 页面
 
-```kotlin
-//创建
+```javascript
 let router = new VueRouter({
- //匹配规则
+ // 匹配规则
   routes:[
        {
           path:'',
-          component:()=>import('')//使用懒加载载入页面，
-          meta:{ //此路由的一些信息}
-          redirect：''//路由重定向，填路由的path进行替换，如要默认显示子路由加父路由页面的话，这里填完整的路由path（父路由path+子路由path）
-          name： '' //路由的命名
+          component:()=>import('') // 使用懒加载载入页面，
+          meta:{}, //此路由的一些信息
+          redirect: '',// 路由重定向，填路由的path进行替换，如要默认显示子路由加父路由页面的话，这里填完整的路由path（父路由path+子路由path）
+          // 也可以写成一个方法
+          redirect: to => {
+              // to 是当前路由对象
+              // return 重定向的字符串路径/路径对象
+              return { path: '/search', query: { q: to.params.searchText } }
+           },
+          name: '', // 路由的命名
           children:[
-                  //子路由，相当于一个routes，使用子路由需要在父路由页面放置一个router-view的路由坑
-                { path：'',
-                 components:{
-                      //多组件路由，通过在<router-view name = 'left'></router-view>来渲染不同的组件
-                   defalut：组件1;
-                     left： 组件2;
-                 }
+                  // 子路由，相当于一个routes，使用子路由需要在父路由页面放置一个router-view的路由坑
+                { path: '',
+                // 所用的组件
+                 components:''
             } ]
-         }
-       ],
-       mode：'history' //启动history模式，页面url中不会出现#号
-      linkActiveClass： '' //路由高亮时的样式，这里指的是<router-link></router-link>的样式
+        },
+        {
+          path: '/search',
+        },
+      ],
+    mode: 'history' // 启动history模式，页面url中不会出现#号
+    linkActiveClass： '' // 路由高亮时的样式，这里指的是<router-link></router-link>的样式
 
 })
 
-//to表明要去哪个路由，tag是将此标签装饰为别的标签，replace则是取消回退,即没有保留浏览记录
+// to表明要去哪个路由，tag是将此标签装饰为别的标签，replace则是取消回退,即没有保留浏览记录
 <router-link to=""  tag ="" replace></router-link>
 
 ```
 
+## 命名视图
+
+有时候想同时 (同级) 展示多个视图，而不是嵌套展示，例如创建一个布局，有 sidebar (侧导航) 和 main (主内容) 两个视图，这个时候命名视图就派上用场了。你可以在界面中拥有多个单独命名的视图，而不是只有一个单独的出口。如果 router-view 没有设置名字，那么默认为 default
+
+```javascript
+<router-view class="view left-sidebar" name="LeftSidebar"></router-view>
+<router-view class="view main-content"></router-view>
+<router-view class="view right-sidebar" name="RightSidebar"></router-view>
+// vue2用new VueRouter vue3用 createRouter
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    {
+      path: '/',
+      components: {
+        default: Home,
+        // LeftSidebar: LeftSidebar 的缩写
+        LeftSidebar,
+        // 它们与 `<router-view>` 上的 `name` 属性匹配
+        RightSidebar,
+      },
+    },
+  ],
+})
+```
+
+## 别名
+
+```javascript
+const routes = [
+  {
+    path: '/users',
+    component: UsersLayout,
+    children: [
+      // 为这 3 个 URL 呈现 UserList
+      // - /users
+      // - /users/list
+      // - /people
+      { path: '', component: UserList, alias: ['/people', 'list'] },
+    ],
+  },
+]
+
+// 如果路由中有参数 那么也需要在别名中增加
+const routes = [
+  {
+    path: '/users/:id',
+    component: UsersByIdLayout,
+    children: [
+      // 为这 3 个 URL 呈现 UserDetails
+      // - /users/24
+      // - /users/24/profile
+      // - /24
+      { path: 'profile', component: UserDetails, alias: ['/:id', ''] },
+    ],
+  },
+]
+```
+
 ## 动态路由
 
-```kotlin
-//query传参
+```javascript
+// query传参
 <router-link to='test?id=10'></router-link>
-//调用（在路由跳转后的页面调用） this.$route.query  得到是一个对象{id：10}
-//params传参
+// 调用（在路由跳转后的页面调用） this.$route.query  得到是一个对象{id：10}
+
+// params传参
 <router-link to='test/10'></router-link>
-//对应的路由表中path改写{path:'test/:id'}
+// 对应的路由表中path改写{path:'test/:id'}
 this.$route.params //得到一个对象 {id：10}
 
-//利用$router的主动式路由跳转及传参
-//query传参，与params传参的不同之处在于，query会将传递的参数展示在浏览器的url路径上，而params不会。相当于query是get请求，而params是post请求
+// 利用$router的主动式路由跳转及传参
+// query传参，与params传参的不同之处在于，query会将传递的参数展示在浏览器的url路径上，而params不会。相当于query是get请求，而params是post请求
 this.$router.push("/test?id=222");
 this.$router.push({path:"/test",query:{id:222}}) //注意，对象写法的query传参，必须是path和query的搭配
-//以上两种都是query传参，在跳转后的页面通过this.$route.query都可以拿到一个对象，{id:222}
+// 以上两种都是query传参，在跳转后的页面通过this.$route.query都可以拿到一个对象，{id:222}
 
-//params传参
+// params传参
 this.$router.push({name:"testName",params:{id:333}}) //注意，对象写法的params传参，必须是name和params的搭配
-//在跳转后的页面通过this.$route.params都可以拿到一个对象，{id:333}
+// 在跳转后的页面通过this.$route.params都可以拿到一个对象，{id:333}
 ```
 
 ## 路由对象和路由参数对象
 
-```kotlin
+```javascript
 // 路由对象
 $router  // 可操作路由的走向 this.$router.push({path:''}),也可以用 this.$router.push({name:'',params:{}})进行跳转
 this.$router.push() //可操作路由的走向
@@ -79,16 +144,77 @@ this.$router.go(1)
 // 后退一步记录，等同于 history.back()
 this.$router.go(-1)
 
-//repalce,效果和push相同，也是跳转路由，但是这种不会留下浏览记录，即无法回撤
+// repalce,效果和push相同，也是跳转路由，但是这种不会留下浏览记录，即无法回撤
 this.$router.replace();
 
 // 路由参数对象
 $route  // 可以拿到路由中的信息 this.$rote.fullPath拿到路由路径的全部，this.$rote.meta拿到路由route的信息
+
+
+// vue3中通过useRouter useRoute拿取对应的路由
+// 在模版中依旧可以使用$router 和 $route
+<tempalte> <div @click='$router.push('')'>{{$route.query}} </div></tempalte>
+<script setup>
+  import { useRouter, useRoute } from 'vue-router'
+  const router = useRouter()
+  const route = useRoute()
+  function pushWithQuery(query) {
+      router.push({
+        name: 'search',
+        query: {
+          ...route.query,
+          ...query,
+        },
+      })
+    }
+</script>
+
+```
+
+## 路由组件传参
+
+```javascript
+// 将props设置为true的时候，跳转到对应的路由的时候可以将路由上的query或者params上的参数作为props传入组件中
+const routes = [{ path: '/user/:id', component: User, props: true }]
+// 也可以写成一个对象
+const routes = [
+  {
+    path: '/promotion/from-newsletter',
+    component: Promotion,
+    props: { newsletterPopup: false }
+  }
+]
+// 还可以是一个函数
+const routes = [
+  {
+    path: '/search',
+    component: SearchUser,
+    props: route => ({ query: route.query.q })
+  }
+]
+
+// 访问/user/9 路由
+<tempalte><div>{{id}}</div></tempalte>
+<script>
+  export defalut {
+     props: ['id'],
+  }
+</script>
+
+// 如果用了命名视图，需要对每一个视图配置props
+const routes = [
+  {
+    path: '/user/:id',
+    components: { default: User, sidebar: Sidebar },
+    props: { default: true, sidebar: false }
+  }
+]
+
 ```
 
 ## 路由内的各个钩子
 
-```kotlin
+```javascript
 // 全局路由守卫（写在router实例化的文件中）
 // 注意全局路由守卫，在每次路由发生改变后，就会被触发
 // 跳转前：
@@ -155,8 +281,28 @@ beforeRouteLeave: function(to, from, next) {
 - 导航确认完毕
 - 触发全局的`afterEach`方法
 - 渲染 Dom
-- 触发将要进入组件的`beforeRouterEnter`方法中 next 方法的回调函数
-:::
+- 触发将要进入组件的`beforeRouterEnter`方法中 next 方法的回调函数，创建好的组件实例会作为回调函数的参数传入。
+  :::
+
+## RouterView 插槽（4.x 版本可以使用）
+
+```javascript
+// 这样就可以保证是路由组件的活跃 而不是router-view的活跃 
+<router-view v-slot="{ Component }">
+  <keep-alive>
+    <component :is="Component" />
+  </keep-alive>
+</router-view>
+
+// 可以用在过度效果上
+<router-view v-slot="{ Component }">
+  <transition>
+    <keep-alive>
+      <component :is="Component" />
+    </keep-alive>
+  </transition>
+</router-view>
+```
 
 ## 路由 history 模式和 hash 模式的特点
 
@@ -173,7 +319,7 @@ beforeRouteLeave: function(to, from, next) {
 - vue 异步组件
 - ES6 的 import 方法
 - webpack 的 require.ensure 方法
-:::
+  :::
 
 ```javascript
 //vue异步组件
